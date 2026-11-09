@@ -1,0 +1,2957 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COMPLEJO SANITARIO FAVALORO MOLAS - TRIAGE</title>
+    <style>
+        :root {
+            --rojo: #ff4444;
+            --naranja: #ff8800;
+            --amarillo: #ffcc00;
+            --verde: #44cc44;
+            --azul: #4488ff;
+            --gris: #cccccc;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        h1 {
+            color: #003366;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+        
+        h2 {
+            color: #0066aa;
+            font-size: 1.5rem;
+            font-weight: normal;
+        }
+        
+        /* Estilos para el cronómetro de triage */
+        .cronometro-triage {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 5px solid #0066aa;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .cronometro-triage h3 {
+            color: #0066aa;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .tiempo-transcurrido {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #0066aa;
+            font-family: 'Courier New', monospace;
+            margin: 10px 0;
+        }
+        
+        .estado-cronometro {
+            font-size: 0.9rem;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .triage-flotante {
+            position: sticky;
+            top: 10px;
+            background-color: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            z-index: 100;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .triage-color {
+            width: 100%;
+            height: 30px;
+            border-radius: 5px;
+            margin: 10px 0;
+            transition: background-color 0.5s ease;
+        }
+        
+        .triage-info {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+        
+        .triage-info div {
+            flex: 1;
+            text-align: center;
+            padding: 0 5px;
+        }
+        
+        .formulario-triage {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .seccion {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .seccion:last-child {
+            border-bottom: none;
+        }
+        
+        h3 {
+            color: #003366;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+        
+        .seccion-abcde {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #0066aa;
+            position: relative;
+        }
+        
+        .seccion-abcde h3 {
+            display: flex;
+            align-items: center;
+            color: #0066aa;
+        }
+        
+        .seccion-abcde h3::before {
+            content: "";
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background-color: #0066aa;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+        
+        .seccion-a h3::before { content: "A"; }
+        .seccion-b h3::before { content: "B"; }
+        .seccion-c h3::before { content: "C"; }
+        .seccion-d h3::before { content: "D"; }
+        .seccion-e h3::before { content: "E"; }
+        
+        .sin-problemas-checkbox {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sin-problemas-checkbox input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .sin-problemas-checkbox label {
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+        
+        .grupo-input {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .escala-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .escala-item label {
+            font-weight: normal;
+            display: flex;
+            align-items: center;
+        }
+        
+        .escala-item input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .botones {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        #btn-calcular {
+            background-color: #0066aa;
+            color: white;
+        }
+        
+        #btn-calcular:hover {
+            background-color: #004477;
+        }
+        
+        #btn-reiniciar {
+            background-color: #cccccc;
+            color: #333;
+        }
+        
+        #btn-reiniciar:hover {
+            background-color: #aaaaaa;
+        }
+        
+        #btn-copiar {
+            background-color: #44cc44;
+            color: white;
+        }
+        
+        #btn-copiar:hover {
+            background-color: #33aa33;
+        }
+        
+        .resultado {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .diagnostico-enfermeria {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f0f8ff;
+            border-radius: 5px;
+            border-left: 4px solid #0066aa;
+            display: none;
+        }
+        
+        .recomendaciones-enfermeria {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #fff8e6;
+            border-radius: 5px;
+            border-left: 4px solid #ffcc00;
+            display: none;
+        }
+        
+        .resumen-datos {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #666;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .tabla-tipo-traumatismo {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .tabla-tipo-traumatismo th, .tabla-tipo-traumatismo td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        
+        .tabla-tipo-traumatismo th {
+            background-color: #f2f2f2;
+        }
+        
+        .tabla-tipo-traumatismo tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .subseccion {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border-left: 4px solid #0066aa;
+        }
+        
+        .opcion-resolucion {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .opcion-resolucion input {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .indicador-abcde {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        /* Estilos para resaltar valores anormales */
+        .valor-anormal {
+            background-color: #ffe6e6 !important;
+            border-color: #ff4444 !important;
+        }
+        
+        .valor-normal {
+            background-color: #e6ffe6 !important;
+            border-color: #44cc44 !important;
+        }
+        
+        .valor-normal-pediatrico {
+            background-color: #e6f3ff !important;
+            border-color: #4488ff !important;
+        }
+        
+        .grid-signos-vitales {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .checkbox-item input {
+            width: auto;
+            margin-right: 8px;
+        }
+        
+        .info-dolor-toracico {
+            margin-top: 10px;
+            padding: 15px;
+            background-color: #fff0f0;
+            border-radius: 5px;
+            border-left: 4px solid #ff4444;
+            display: none;
+        }
+        
+        .info-dolor-toracico h4 {
+            color: #cc0000;
+            margin-bottom: 10px;
+        }
+        
+        .tipo-dolor-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .tipo-dolor-item {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+        }
+        
+        .tipo-dolor-item h5 {
+            color: #0066aa;
+            margin-bottom: 8px;
+        }
+        
+        .tipo-dolor-item ul {
+            padding-left: 20px;
+            margin: 0;
+        }
+        
+        .tipo-dolor-item li {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .indicador-pam {
+            margin-top: 5px;
+            font-size: 0.9rem;
+            padding: 5px;
+            border-radius: 3px;
+            text-align: center;
+            font-weight: bold;
+        }
+        
+        .pam-normal {
+            background-color: #e6ffe6;
+            color: #006600;
+            border: 1px solid #44cc44;
+        }
+        
+        .pam-anormal {
+            background-color: #ffe6e6;
+            color: #cc0000;
+            border: 1px solid #ff4444;
+        }
+        
+        .info-enfermeria {
+            background-color: #f8f8f8;
+            border-left: 4px solid #666;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        
+        .info-enfermeria h4 {
+            color: #444;
+            margin-bottom: 8px;
+        }
+        
+        .control-glucemia {
+            background-color: #fff0f0;
+            border-left: 4px solid #ff8800;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        /* Estilos para las nuevas secciones de quemaduras y trauma abierto */
+        .subseccion-quemadura, .subseccion-trauma-abierto {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #fff8f0;
+            border-radius: 5px;
+            border-left: 4px solid #ff8800;
+        }
+        
+        .subseccion-quemadura h5, .subseccion-trauma-abierto h5 {
+            color: #cc6600;
+            margin-bottom: 10px;
+        }
+        
+        .checkbox-group-column {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .checkbox-group-column .checkbox-item {
+            margin-bottom: 5px;
+        }
+        
+        .checkbox-group-column .checkbox-item label {
+            font-weight: normal;
+        }
+        
+        /* Estilos para las nuevas secciones de salud mental y reacción alérgica */
+        .seccion-salud-mental, .seccion-reaccion-alergica {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #0066aa;
+        }
+        
+        .indicador-triage {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .indicador-rojo { background-color: var(--rojo); }
+        .indicador-naranja { background-color: var(--naranja); }
+        .indicador-amarillo { background-color: var(--amarillo); }
+        .indicador-verde { background-color: var(--verde); }
+        .indicador-azul { background-color: var(--azul); }
+        
+        /* Estilos para el triángulo pediátrico */
+        .seccion-triangulo-pediatrico {
+            background-color: #f0f8ff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #1a6bb3;
+            display: none;
+        }
+        
+        .triangulo-parameter {
+            margin-bottom: 20px;
+        }
+        
+        .triangulo-parameter h4 {
+            color: #1a6bb3;
+            margin-bottom: 10px;
+        }
+        
+        .triangulo-options {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .triangulo-option {
+            flex: 1;
+            min-width: 120px;
+        }
+        
+        .triangulo-option input {
+            display: none;
+        }
+        
+        .triangulo-option label {
+            display: block;
+            padding: 12px 15px;
+            background-color: #e9ecef;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .triangulo-option input:checked + label {
+            background-color: #1a6bb3;
+            color: white;
+        }
+        
+        .triangulo-counters {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #e7f3ff;
+            border-radius: 8px;
+        }
+        
+        .triangulo-counter {
+            text-align: center;
+        }
+        
+        .triangulo-counter-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1a6bb3;
+        }
+        
+        .triangulo-counter-label {
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .triangulo-result {
+            background-color: #e7f3ff;
+            border-left: 5px solid #1a6bb3;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        
+        .triangulo-result h4 {
+            color: #1a6bb3;
+            margin-bottom: 10px;
+        }
+        
+        .triangulo-result p {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+        
+        /* Estilos para la nueva sección de Violencia */
+        .seccion-violencia {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 5px solid #cc0000;
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            h2 {
+                font-size: 1.3rem;
+            }
+            
+            .triage-info {
+                flex-direction: column;
+            }
+            
+            .triage-info div {
+                margin-bottom: 10px;
+            }
+            
+            .botones {
+                flex-direction: column;
+            }
+            
+            button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            
+            .tabla-tipo-traumatismo {
+                font-size: 0.9rem;
+            }
+            
+            .grid-signos-vitales {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+            }
+            
+            .tipo-dolor-group {
+                flex-direction: column;
+            }
+            
+            .sin-problemas-checkbox {
+                position: static;
+                margin-bottom: 15px;
+            }
+            
+            .triangulo-options {
+                flex-direction: column;
+            }
+            
+            .triangulo-option {
+                min-width: 100%;
+            }
+            
+            .triangulo-counters {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .tiempo-transcurrido {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>COMPLEJO SANITARIO FAVALORO MOLAS</h1>
+        <h2>SISTEMA DE TRIAGE INFORMATIZADO</h2>
+    </header>
+    
+    <!-- Cronómetro de Triage -->
+    <div class="cronometro-triage">
+        <h3>TIEMPO DE TRIAGE</h3>
+        <div class="tiempo-transcurrido" id="tiempo-transcurrido">00:00:00</div>
+        <div class="estado-cronometro" id="estado-cronometro">En curso...</div>
+    </div>
+    
+    <div class="triage-flotante">
+        <h3>NIVEL DE TRIAGE ACTUAL</h3>
+        <div class="triage-color" id="color-triage"></div>
+        <div class="triage-info">
+            <div>
+                <strong>Prioridad:</strong>
+                <span id="prioridad-triage">No determinado</span>
+            </div>
+            <div>
+                <strong>Tiempo espera:</strong>
+                <span id="tiempo-triage">-</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="formulario-triage">
+        <form id="form-triage">
+            <div class="seccion">
+                <h3>DATOS DEL PACIENTE Y FACTORES DE RIESGO</h3>
+                <div class="grupo-input">
+                    <label for="nombre">Nombre completo</label>
+                    <input type="text" id="nombre" name="nombre">
+                </div>
+                
+                <div class="grupo-input">
+                    <label for="edad">Edad</label>
+                    <input type="number" id="edad" name="edad" min="0" max="120">
+                </div>
+                
+                <div class="grupo-input">
+                    <label for="genero">Género</label>
+                    <select id="genero" name="genero">
+                        <option value="">Seleccione</option>
+                        <option value="masculino">Masculino</option>
+                        <option value="femenino">Femenino</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                
+                <div class="grupo-input">
+                    <label>Antecedentes médicos relevantes</label>
+                    <div class="checkbox-group">
+    <div class="checkbox-item">
+        <input type="checkbox" id="hta" name="antecedentes" value="hta">
+        <label for="hta">HTA (Hipertensión)</label>
+    </div>
+    <div class="checkbox-item">
+        <input type="checkbox" id="dbt" name="antecedentes" value="dbt">
+        <label for="dbt">DBT (Diabetes)</label>
+    </div>
+    <div class="checkbox-item">
+        <input type="checkbox" id="epoc" name="antecedentes" value="epoc">
+        <label for="epoc">EPOC</label>
+    </div>
+    <div class="checkbox-item">
+        <input type="checkbox" id="acv" name="antecedentes" value="acv">
+        <label for="acv">ACV</label>
+    </div>
+    <div class="checkbox-item">
+        <input type="checkbox" id="arritmias" name="antecedentes" value="arritmias">
+        <label for="arritmias">Arritmias</label>
+    </div>
+    <div class="checkbox-item">
+        <input type="checkbox" id="coronarios" name="antecedentes" value="coronarios">
+        <label for="coronarios">Antecedentes Coronarios</label>
+    </div>
+    <div class="checkbox-item">
+        <input type="checkbox" id="asma" name="antecedentes" value="asma">
+        <label for="asma">Asma</label>
+    </div>
+    <div class="checkbox-item">
+        <input type="checkbox" id="epilepsia" name="antecedentes" value="epilepsia">
+        <label for="epilepsia">Epilepsia</label>
+    </div>
+    <div class="checkbox-item">
+        <input type="checkbox" id="obesidad" name="antecedentes" value="obesidad">
+        <label for="obesidad">Obesidad</label>
+    </div>
+</div>
+                
+                <div class="grupo-input">
+                    <label for="otros-antecedentes">Otros antecedentes</label>
+                    <textarea id="otros-antecedentes" name="otros-antecedentes" placeholder="Describa otros antecedentes médicos relevantes, medicamentos, alergias, etc."></textarea>
+                </div>
+            </div>
+            
+            <!-- NUEVA SECCIÓN: MOTIVO DE CONSULTA Y SÍNTOMAS (MOVIDA AQUÍ) -->
+            <div class="seccion">
+                <h3>MOTIVO DE CONSULTA Y SÍNTOMAS</h3>
+                <div class="grupo-input">
+                    <label for="motivo">Motivo principal de consulta</label>
+                    <textarea id="motivo" name="motivo" placeholder="Describa el motivo principal de consulta"></textarea>
+                </div>
+                
+                <div class="grupo-input">
+                    <label for="sintomas">Síntomas asociados</label>
+                    <textarea id="sintomas" name="sintomas" placeholder="Describa otros síntomas presentes"></textarea>
+                </div>
+            </div>
+            
+            <!-- SIGNOS VITALES JUNTOS AL PRINCIPIO -->
+            <div class="seccion">
+                <h3>SIGNOS VITALES</h3>
+                <div class="grid-signos-vitales">
+                    <div class="grupo-input">
+                        <label for="frecuencia-cardiaca">Frecuencia cardíaca (lpm) - Normal adulto: 50-105</label>
+                        <input type="number" id="frecuencia-cardiaca" name="frecuencia-cardiaca" min="0" max="300">
+                    </div>
+                    
+                    <!-- Presión arterial oculta para niños de 0 a 10 años -->
+                    <div id="grupo-presion-arterial" class="grupo-input">
+                        <label for="presion-arterial">Presión arterial (mmHg)</label>
+                        <input type="text" id="presion-arterial" name="presion-arterial" placeholder="Ej: 120/80">
+                        <div id="indicador-pam" class="indicador-pam" style="display: none;"></div>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="frecuencia-respiratoria">Frecuencia respiratoria (rpm)</label>
+                        <input type="number" id="frecuencia-respiratoria" name="frecuencia-respiratoria" min="0" max="60">
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="temperatura">Temperatura (°C)</label>
+                        <input type="number" id="temperatura" name="temperatura" min="30" max="45" step="0.1">
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="saturacion-oxigeno">Saturación de oxígeno (%)</label>
+                        <input type="number" id="saturacion-oxigeno" name="saturacion-oxigeno" min="0" max="100">
+                    </div>
+                    
+                    <!-- Control de glucemia -->
+                    <div class="grupo-input">
+                        <label for="glucemia">Glucemia (mg/dL)</label>
+                        <input type="number" id="glucemia" name="glucemia" min="0" max="1000" placeholder="Solo si DBT o Taquipnea >22 rpm">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- NUEVA SECCIÓN: TRIÁNGULO DE EVALUACIÓN PEDIÁTRICA (se muestra solo si edad < 14 años) -->
+            <div id="seccion-triangulo-pediatrico" class="seccion-triangulo-pediatrico">
+                <h3>TRIÁNGULO DE EVALUACIÓN PEDIÁTRICA (0-14 AÑOS)</h3>
+                <p class="indicador-abcde">Mediante el triángulo de valoración pediátrica los pacientes pueden categorizarse en siete diferentes estados que indican la gravedad de su situación y la prioridad en her atención.</p>
+                
+                <div class="triangulo-parameter">
+                    <h4>Apariencia</h4>
+                    <div class="triangulo-options">
+                        <div class="triangulo-option">
+                            <input type="radio" id="apariencia-normal" name="apariencia" value="normal">
+                            <label for="apariencia-normal">Normal</label>
+                        </div>
+                        <div class="triangulo-option">
+                            <input type="radio" id="apariencia-anormal" name="apariencia" value="anormal">
+                            <label for="apariencia-anormal">Anormal</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="triangulo-parameter">
+                    <h4>Trabajo Respiratorio</h4>
+                    <div class="triangulo-options">
+                        <div class="triangulo-option">
+                            <input type="radio" id="respiratorio-normal" name="respiratorio" value="normal">
+                            <label for="respiratorio-normal">Normal</label>
+                        </div>
+                        <div class="triangulo-option">
+                            <input type="radio" id="respiratorio-anormal" name="respiratorio" value="anormal">
+                            <label for="respiratorio-anormal">Anormal</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="triangulo-parameter">
+                    <h4>Circulación a la Piel</h4>
+                    <div class="triangulo-options">
+                        <div class="triangulo-option">
+                            <input type="radio" id="circulacion-normal" name="circulacion" value="normal">
+                            <label for="circulacion-normal">Normal</label>
+                        </div>
+                        <div class="triangulo-option">
+                            <input type="radio" id="circulacion-anormal" name="circulacion" value="anormal">
+                            <label for="circulacion-anormal">Anormal</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="triangulo-counters">
+                    <div class="triangulo-counter">
+                        <div class="triangulo-counter-value" id="normal-count">0</div>
+                        <div class="triangulo-counter-label">Parámetros Normales</div>
+                    </div>
+                    <div class="triangulo-counter">
+                        <div class="triangulo-counter-value" id="anormal-count">0</div>
+                        <div class="triangulo-counter-label">Parámetros Anormales</div>
+                    </div>
+                </div>
+                
+                <div class="triangulo-result">
+                    <h4>Resultado de la Evaluación:</h4>
+                    <p id="diagnostico-triangulo">Seleccione todos los parámetros para obtener un diagnóstico</p>
+                </div>
+            </div>
+            
+            <!-- EVALUACIÓN SISTEMA ABCDE -->
+            <div class="seccion">
+                <h3>EVALUACIÓN SISTEMA ABCDE</h3>
+                
+                <!-- A - VÍA AÉREA -->
+                <div class="seccion-abcde seccion-a">
+                    <h3>VÍA AÉREA</h3>
+                    <div class="sin-problemas-checkbox">
+                        <input type="checkbox" id="sin-problemas-a" name="sin-problemas-a">
+                        <label for="sin-problemas-a">Sin problemas</label>
+                    </div>
+                    <p class="indicador-abcde">¿Hay obstrucciones?</p>
+                    
+                    <div class="grupo-input">
+                        <label for="via-aerea">Estado de la vía aérea</label>
+                        <select id="via-aerea" name="via-aerea">
+                            <option value="">Seleccione estado</option>
+                            <option value="permeables">Permeable</option>
+                            <option value="parcial-obstruida">Parcialmente obstruida</option>
+                            <option value="completamente-obstruida">Completamente obstruida</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="sonidos-respiratorios">Sonidos respiratorios</label>
+                        <select id="sonidos-respiratorios" name="sonidos-respiratorios">
+                            <option value="">Seleccione</option>
+                            <option value="normales">Normales</option>
+                            <option value="estridor">Estridor</option>
+                            <option value="silbidos">Silbidos</option>
+                            <option value="roncus">Roncus</option>
+                            <option value="ausentes">Ausentes</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- B - RESPIRACIÓN -->
+                <div class="seccion-abcde seccion-b">
+                    <h3>RESPIRACIÓN</h3>
+                    <div class="sin-problemas-checkbox">
+                        <input type="checkbox" id="sin-problemas-b" name="sin-problemas-b">
+                        <label for="sin-problemas-b">Sin problemas</label>
+                    </div>
+                    <p class="indicador-abcde">Evaluar la frecuencia y esfuerzo respiratorio</p>
+                    
+                    <div class="grupo-input">
+                        <label for="esfuerzo-respiratorio">Esfuerzo respiratorio</label>
+                        <select id="esfuerzo-respiratorio" name="esfuerzo-respiratorio">
+                            <option value="">Seleccione</option>
+                            <option value="normal">Normal</option>
+                            <option value="uso-musculos-accesorios">Uso de músculos accesorios</option>
+                            <option value="tiraciones">Tiraciones intercostales/supraclaviculares</option>
+                            <option value="quejido-espiratorio">Quejido espiratorio</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="posicion-paciente">Posición del paciente</label>
+                        <select id="posicion-paciente" name="posicion-paciente">
+                            <option value="">Seleccione</option>
+                            <option value="decubito-supino">Decúbito supino</option>
+                            <option value="fowler">Fowler/semisentado</option>
+                            <option value="ortopneica">Ortopneica</option>
+                            <option value="decubito-lateral">Decúbito lateral</option>
+                            <option value="tripode">Posición de tripode</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- C - CIRCULACIÓN -->
+                <div class="seccion-abcde seccion-c">
+                    <h3>CIRCULACIÓN</h3>
+                    <div class="sin-problemas-checkbox">
+                        <input type="checkbox" id="sin-problemas-c" name="sin-problemas-c">
+                        <label for="sin-problemas-c">Sin problemas</label>
+                    </div>
+                    <p class="indicador-abcde">Evaluar frecuencia cardíaca, presión arterial y perfusión</p>
+                    
+                    <div class="grupo-input">
+                        <label for="calidad-pulso">Calidad del pulso</label>
+                        <select id="calidad-pulso" name="calidad-pulso">
+                            <option value="">Seleccione</option>
+                            <option value="normal">Normal</option>
+                            <option value="debil">Débil</option>
+                            <option value="filiforme">Filiforme</option>
+                            <option value="ausente">Ausente</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="coloracion-piel">Coloración de piel y mucosas</label>
+                        <select id="coloracion-piel" name="coloracion-piel">
+                            <option value="">Seleccione</option>
+                            <option value="normal">Normal (rosada)</option>
+                            <option value="palida">Pálida</option>
+                            <option value="cianosis-central">Cianosis central</option>
+                            <option value="cianosis-periferica">Cianosis periférica</option>
+                            <option value="rubicundez">Rubicundez</option>
+                            <option value="ictericia">Ictericia</option>
+                            <option value="marmoreo">Marmóreo</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Tiempo de llenado capilar movido a Circulación -->
+                    <div class="grupo-input">
+                        <label for="tiempo-llenado-capilar">Tiempo de llenado capilar</label>
+                        <select id="tiempo-llenado-capilar" name="tiempo-llenado-capilar">
+                            <option value="">Seleccione</option>
+                            <option value="normal">Normal (< 2 segundos)</option>
+                            <option value="leve">Levemente prolongado (2-3 segundos)</option>
+                            <option value="moderado">Moderadamente prolongado (3-4 segundos)</option>
+                            <option value="severa">Severamente prolongado (> 4 segundos)</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- D - DÉFICIT NEUROLÓGICO -->
+                <div class="seccion-abcde seccion-d">
+                    <h3>DÉFICIT NEUROLÓGICO</h3>
+                    <div class="sin-problemas-checkbox">
+                        <input type="checkbox" id="sin-problemas-d" name="sin-problemas-d">
+                        <label for="sin-problemas-d">Sin problemas</label>
+                    </div>
+                    <p class="indicador-abcde">Evaluar el estado neurológico</p>
+                    
+                    <div class="grupo-input">
+                        <label>Escala de Glasgow</label>
+                        <select id="glasgow" name="glasgow">
+                            <option value="">Seleccione puntuación</option>
+                            <option value="15">15 - Normal</option>
+                            <option value="14">14 - Alteración leve</option>
+                            <option value="13">13 - Alteración moderada</option>
+                            <option value="12">12 - Alteración moderada/grave</option>
+                            <option value="11">11 - Alteración grave</option>
+                            <option value="10">10 - Alteración grave</option>
+                            <option value="9">9 - Alteración grave</option>
+                            <option value="8">8 - Coma</option>
+                            <option value="7">7 - Coma</option>
+                            <option value="6">6 - Coma profundo</option>
+                            <option value="5">5 - Coma profundo</option>
+                            <option value="4">4 - Coma profundo</option>
+                            <option value="3">3 - Coma profundo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label>Nivel de conciencia</label>
+                        <select id="conciencia" name="conciencia">
+                            <option value="">Seleccione estado</option>
+                            <option value="alerta">Alerta y orientado</option>
+                            <option value="confuso">Confuso/desorientado</option>
+                            <option value="somnoliento">Somnoliento pero responde</option>
+                            <option value="estupor">Estupor/respuesta al dolor</option>
+                            <option value="coma">Coma/sin respuesta</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="pupilas">Estado de las pupilas</label>
+                        <select id="pupilas" name="pupilas">
+                            <option value="">Seleccione</option>
+                            <option value="normales">Normales, isocóricas y reactivas</option>
+                            <option value="anisocoria">Anisocoria</option>
+                            <option value="midriaticas">Midriáticas</option>
+                            <option value="mioticas">Mióticas</option>
+                            <option value="no-reactivas">No reactivas</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="deficit-meningeo">Signos meníngeos</label>
+                        <select id="deficit-meningeo" name="deficit-meningeo">
+                            <option value="">Seleccione</option>
+                            <option value="ausentes">Ausentes</option>
+                            <option value="rigidez-nucal">Rigidez nucal</option>
+                            <option value="kernig-positivo">Signo de Kernig positivo</option>
+                            <option value="brudzinski-positivo">Signo de Brudzinski positivo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="deficit-motor">Déficit motor</label>
+                        <select id="deficit-motor" name="deficit-motor">
+                            <option value="">Seleccione</option>
+                            <option value="ausente">Ausente</option>
+                            <option value="hemiparesia-derecha">Hemiparesia derecha</option>
+                            <option value="hemiparesia-izquierda">Hemiparesia izquierda</option>
+                            <option value="paraparesia">Paraparesia</option>
+                            <option value="tetraparesia">Tetraparesia</option>
+                            <option value="monoparesia">Monoparesia</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- E - EXPOSICIÓN (MECANISMO DE LESIÓN) -->
+                <div class="seccion-abcde seccion-e">
+                    <h3>EXPOSICIÓN (MECANISMO DE LESIÓN)</h3>
+                    <div class="sin-problemas-checkbox">
+                        <input type="checkbox" id="sin-problemas-e" name="sin-problemas-e">
+                        <label for="sin-problemas-e">Sin problemas</label>
+                    </div>
+                    <p class="indicador-abcde">Exponer al paciente para buscar heridas o problemas no visibles</p>
+                    
+                    <div class="grupo-input">
+                        <label for="agentes-lesivos">Agentes lesivos de exposición</label>
+                        <textarea id="agentes-lesivos" name="agentes-lesivos" placeholder="Describa agentes lesivos identificados (químicos, físicos, mecánicos, etc.)"></textarea>
+                    </div>
+                    
+                    <!-- SECCIÓN DE LESION INTEGRADA EN EXPOSICIÓN -->
+                    <div class="subseccion">
+                        <h4>LESIÓN IDENTIFICADA</h4>
+                        
+                        <div class="grupo-input">
+                            <label for="tipo-lesion">Tipo de Lesión</label>
+                            <select id="tipo-lesion" name="tipo-lesion">
+                                <option value="">Seleccione tipo</option>
+                                <option value="agudo">Agudo</option>
+                                <option value="cronico">Crónico</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Subsección para Lesión Aguda -->
+                        <div id="subseccion-agudo" class="subseccion" style="display: none;">
+                            <h5>Traumatismo Agudo</h5>
+                            <div class="grupo-input">
+                                <label for="tipo-traumatismo-agudo">Tipo de Traumatismo</label>
+                                <select id="tipo-traumatismo-agudo" name="tipo-traumatismo-agudo">
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="cerrado">Traumatismo cerrado (contuso)</option>
+                                    <option value="abierto">Traumatismo abierto</option>
+                                    <option value="quemadura">Quemadura</option>
+                                    <option value="multiple">Traumatismo múltiple (politraumatismo)</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Subsección para Quemaduras -->
+                            <div id="subseccion-quemadura" class="subseccion-quemadura" style="display: none;">
+                                <h5>Quemadura</h5>
+                                <div class="grupo-input">
+                                    <label>Tipo de Quemadura</label>
+                                    <div class="checkbox-group-column">
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="quemadura-calor" name="tipo-quemadura" value="calor">
+                                            <label for="quemadura-calor">Calor (térmica)</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="quemadura-electricidad" name="tipo-quemadura" value="electricidad">
+                                            <label for="quemadura-electricidad">Electricidad</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="quemadura-radiacion" name="tipo-quemadura" value="radiacion">
+                                            <label for="quemadura-radiacion">Radiación</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="quemadura-quimicos" name="tipo-quemadura" value="quimicos">
+                                            <label for="quemadura-quimicos">Agentes químicos</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="grupo-input">
+                                    <label for="superficie-quemadura">Superficie corporal afectada (%)</label>
+                                    <input type="number" id="superficie-quemadura" name="superficie-quemadura" min="0" max="100" step="0.1">
+                                </div>
+                                
+                                <div class="grupo-input">
+                                    <label for="grado-quemadura">Grado de la quemadura</label>
+                                    <select id="grado-quemadura" name="grado-quemadura">
+                                        <option value="">Seleccione grado</option>
+                                        <option value="1">1er grado (eritema)</option>
+                                        <option value="2a">2do grado superficial (ampollas)</option>
+                                        <option value="2b">2do grado profundo</option>
+                                        <option value="3">3er grado (necrosis)</option>
+                                        <option value="4">4to grado (carbonización)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Subsección para Trauma Abierto -->
+                            <div id="subseccion-trauma-abierto" class="subseccion-trauma-abierto" style="display: none;">
+                                <h5>Traumatismo Abierto</h5>
+                                <div class="grupo-input">
+                                    <label>Tipo de Trauma Abierto</label>
+                                    <div class="checkbox-group-column">
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="trauma-laceracion" name="tipo-trauma-abierto" value="laceracion">
+                                            <label for="trauma-laceracion">Laceración</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="trauma-cortante" name="tipo-trauma-abierto" value="cortante">
+                                            <label for="trauma-cortante">Cortante</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="trauma-punzante" name="tipo-trauma-abierto" value="punzante">
+                                            <label for="trauma-punzante">Punzante</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <input type="checkbox" id="trauma-transfixiante" name="tipo-trauma-abierto" value="transfixiante">
+                                            <label for="trauma-transfixiante">Transfixiante</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Subsección para Punzante y Transfixiante -->
+                                <div id="subseccion-punzante-transfixiante" class="subseccion" style="display: none;">
+                                    <h6>Características de Herida Punzante/Transfixiante</h6>
+                                    <div class="grupo-input">
+                                        <label for="profundidad-herida">Profundidad estimada (cm)</label>
+                                        <input type="number" id="profundidad-herida" name="profundidad-herida" min="0" step="0.1">
+                                    </div>
+                                    
+                                    <div class="grupo-input">
+                                        <label for="estructuras-afectadas">Estructuras afectadas</label>
+                                        <textarea id="estructuras-afectadas" name="estructuras-afectadas" placeholder="Describa estructuras afectadas (vasos, nervios, órganos, etc.)"></textarea>
+                                    </div>
+                                    
+                                    <div class="grupo-input">
+                                        <label for="cuerpo-extrano">Presencia de cuerpo extraño</label>
+                                        <select id="cuerpo-extrano" name="cuerpo-extrano">
+                                            <option value="">Seleccione</option>
+                                            <option value="no">No</option>
+                                            <option value="si-retirado">Sí, pero fue retirado</option>
+                                            <option value="si-presente">Sí, aún presente</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="grupo-input">
+                                <label>Información de referencia:</label>
+                                <table class="tabla-tipo-traumatismo">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo de traumatismo</th>
+                                            <th>Descripción</th>
+                                            <th>Ejemplo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Traumatismo cerrado (contuso)</td>
+                                            <td>No hay herida abierta, pero hay daño interno.</td>
+                                            <td>Golpe, hematoma, fractura cerrada, TEC.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Traumatismo abierto</td>
+                                            <td>Hay herida con exposición o sangrado.</td>
+                                            <td>Corte, laceración, herida por arma blanca o de fuego.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Quemadura</td>
+                                            <td>Lesión tisular por agentes térmicos, químicos, eléctricos o por radiación.</td>
+                                            <td>Quemadura por fuego, líquidos calientes, electricidad, químicos.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Traumatismo múltiple (politraumatismo)</td>
+                                            <td>Compromete más de un sistema o región corporal.</td>
+                                            <td>Accidente de tránsito con lesiones en cráneo, tórax y miembros.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Subsección para Lesión Crónica -->
+                        <div id="subseccion-cronico" class="subseccion" style="display: none;">
+                            <h5>Lesión Crónica</h5>
+                            <div class="grupo-input">
+                                <label for="tipo-lesion-cronica">Tipo de Lesión Crónica</label>
+                                <select id="tipo-lesion-cronica" name="tipo-lesion-cronica">
+                                    <option value="">Seleccione tipo</option>
+                                    <option value="presion">Por presión o inmovilidad</option>
+                                    <option value="friccion">Por fricción o roce repetido</option>
+                                    <option value="enfermedad">Por enfermedades de base</option>
+                                    <option value="exposicion">Por exposición crónica a agentes químicos/físicos</option>
+                                </select>
+                            </div>
+                            
+                            <div class="grupo-input">
+                                <label>Información de referencia:</label>
+                                <table class="tabla-tipo-traumatismo">
+                                    <thead>
+                                        <tr>
+                                            <th>Tipo</th>
+                                            <th>Ejemplo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Por presión o inmovilidad</td>
+                                            <td>Úlceras por presión, escaras.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Por fricción o roce repetido</td>
+                                            <td>Callos, ampollas crónicas.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Por enfermedades de base</td>
+                                            <td>Úlceras diabéticas, vasculares, infecciosas.</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Por exposición crónica a agentes químicos/físicos</td>
+                                            <td>Dermatitis por contacto, quemaduras químicas crónicas.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- EVALUACIÓN DEL DOLOR -->
+            <div class="seccion">
+                <h3>EVALUACIÓN DEL DOLOR</h3>
+                
+                <div class="grupo-input">
+                    <label>Dolor (Escala 0-10)</label>
+                    <select id="dolor" name="dolor">
+                        <option value="">Seleccione intensidad</option>
+                        <option value="0">0 - Sin dolor</option>
+                        <option value="1">1 - Muy leve</option>
+                        <option value="2">2 - Leve</option>
+                        <option value="3">3 - Molesto</option>
+                        <option value="4">4 - Moderado</option>
+                        <option value="5">5 - Moderadamente intenso</option>
+                        <option value="6">6 - Intenso</option>
+                        <option value="7">7 - Muy intenso</option>
+                        <option value="8">8 - Muy intenso</option>
+                        <option value="9">9 - Insoportable</option>
+                        <option value="10">10 - El peor dolor imaginable</option>
+                    </select>
+                </div>
+                
+                <div class="grupo-input">
+                    <label for="localizacion-dolor">Localización del dolor</label>
+                    <select id="localizacion-dolor" name="localizacion-dolor">
+                        <option value="">Seleccione localización</option>
+                        <option value="cabeza">Cabeza</option>
+                        <option value="cuello">Cuello</option>
+                        <option value="torax">Tórax</option>
+                        <option value="abdomen">Abdomen</option>
+                        <option value="miembros-superiores">Miembros superiores</option>
+                        <option value="miembros-inferiores">Miembros inferiores</option>
+                    </select>
+                </div>
+                
+                <!-- Información sobre dolor torácico -->
+                <div id="info-dolor-toracico" class="info-dolor-toracico">
+                    <h4>DOLOR TORÁCICO - CLASIFICACIÓN</h4>
+                    <div class="tipo-dolor-group">
+                        <div class="tipo-dolor-item">
+                            <h5>DOLOR TORÁCICO TÍPICO</h5>
+                            <p><strong>Descripción:</strong> Sensación de presión, opresión o pesadez en el pecho, a menudo debajo del esternón.</p>
+                            <p><strong>Características:</strong></p>
+                            <ul>
+                                <li>Es provocado por el esfuerzo físico o el estrés emocional</li>
+                                <li>Dura al menos dos minutos y desaparece al descansar o tomar nitroglicerina</li>
+                                <li>Puede irradiarse al brazo, hombro, cuello o mandíbula</li>
+                            </ul>
+                        </div>
+                        <div class="tipo-dolor-item">
+                            <h5>DOLOR TORÁCICO ATÍPICO</h5>
+                            <p><strong>Descripción:</strong> Cualquier dolor torácico que no cumple con los tres criterios del dolor típico.</p>
+                            <p><strong>Características:</strong></p>
+                            <ul>
+                                <li>Puede ser punzante, agudo o sentirse como un ardor</li>
+                                <li>Puede localizarse en la espalda, en la parte superior del abdomen debajo de las costillas o ser referido a otros lugares como el hombro</li>
+                                <li>No está claro si es provocado por el esfuerzo o el reposo de la misma manera que el dolor típico</li>
+                                <li>Puede estar relacionado con el tracto gastrointestinal, como en el caso de la enfermedad por reflujo gastroesofágico (ERGE)</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="grupo-input">
+                        <label for="tipo-dolor-toracico">Tipo de dolor torácico</label>
+                        <select id="tipo-dolor-toracico" name="tipo-dolor-toracico">
+                            <option value="">Seleccione tipo</option>
+                            <option value="tipico">Dolor Torácico Típico</option>
+                            <option value="atipico">Dolor Torácico Atípico</option>
+                            <option value="no-especificado">No Especificado</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="grupo-input">
+                    <label for="caracteristica-dolor">Característica del dolor</label>
+                    <select id="caracteristica-dolor" name="caracteristica-dolor">
+                        <option value="">Seleccione</option>
+                        <option value="opresivo">Opresivo</option>
+                        <option value="punzante">Punzante</option>
+                        <option value="quemante">Quemante</option>
+                        <option value="sordo">Sordo</option>
+                        <option value="irradiado">Irradiado</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- NUEVA SECCIÓN: SALUD MENTAL -->
+            <div class="seccion-salud-mental">
+                <h3>SALUD MENTAL</h3>
+                
+                <div class="grupo-input">
+                    <label for="salud-mental">Condición de salud mental</label>
+                    <select id="salud-mental" name="salud-mental">
+                        <option value="">Seleccione condición</option>
+                        <option value="conducta-suicida">Conducta suicida o autolesiones</option>
+                        <option value="conducta-violenta">Conducta violenta u homicida</option>
+                        <option value="psicosis-aguda">Psicosis aguda (delirio, alucinaciones, incoherencia desorganizado)</option>
+                        <option value="crisis-angustia">Crisis de angustia graves (ataques de pánico)</option>
+                        <option value="abuso-sustancias">Alteración grave por abuso o abstinencia de sustancias: Intoxicación aguda por drogas o alcohol o síndromes de abstinencia</option>
+                        <option value="malestar-emocional">Malestar emocional depresión</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- NUEVA SECCIÓN: REACCIÓN ALÉRGICA -->
+            <div class="seccion-reaccion-alergica">
+                <h3>REACCIÓN ALÉRGICA</h3>
+                
+                <div class="grupo-input">
+                    <label for="reaccion-alergica">Tipo de reacción alérgica</label>
+                    <select id="reaccion-alergica" name="reaccion-alergica">
+                        <option value="">Seleccione tipo</option>
+                        <option value="anafilaxia">Anafilaxia</option>
+                        <option value="alergia-respiratoria">Alergia respiratoria</option>
+                        <option value="alergia-cutanea">Alergias cutáneas</option>
+                        <option value="alergia-alimentaria">Alergias alimentarias</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- NUEVA SECCIÓN: VIOLENCIA -->
+            <div class="seccion-violencia">
+                <h3>VIOLENCIA</h3>
+                
+                <div class="grupo-input">
+                    <label for="tipo-violencia">Tipo de violencia</label>
+                    <select id="tipo-violencia" name="tipo-violencia">
+                        <option value="">Seleccione tipo</option>
+                        <option value="domestica">Violencia doméstica o intrafamiliar</option>
+                        <option value="genero">Violencia de género</option>
+                        <option value="infantil">Violencia infantil</option>
+                    </select>
+                </div>
+                
+                <div class="grupo-input">
+                    <label for="descripcion-violencia">Descripción de la situación de violencia</label>
+                    <textarea id="descripcion-violencia" name="descripcion-violencia" placeholder="Describa la situación de violencia identificada, incluyendo contexto, manifestaciones y consecuencias observadas"></textarea>
+                </div>
+            </div>
+            
+            <!-- SECCIÓN DE RESOLUCIÓN -->
+            <div class="seccion">
+                <h3>RESOLUCIÓN</h3>
+                
+                <div class="grupo-input">
+                    <div class="opcion-resolucion">
+                        <input type="radio" id="resolucion-consultorio-externo" name="resolucion" value="consultorio-externo">
+                        <label for="resolucion-consultorio-externo">Sigue por Consultorio Externo</label>
+                    </div>
+                    
+                    <div class="opcion-resolucion">
+                        <input type="radio" id="resolucion-consultorio-guardia" name="resolucion" value="consultorio-guardia">
+                        <label for="resolucion-consultorio-guardia">Sigue Consultorio de Guardia</label>
+                    </div>
+                    
+                    <div class="opcion-resolucion">
+                        <input type="radio" id="resolucion-ingresa-guardia" name="resolucion" value="ingresa-guardia">
+                        <label for="resolucion-ingresa-guardia">Ingresa a Guardia</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="botones">
+                <button type="button" id="btn-reiniciar">Reiniciar formulario</button>
+                <button type="button" id="btn-calcular">Calcular triage</button>
+            </div>
+        </form>
+    </div>
+    
+    <div class="resultado" id="resultado-triage" style="display: none;">
+        <h3>RESULTADO DEL TRIAGE</h3>
+        <div class="triage-color" id="color-resultado"></div>
+        <div class="triage-info">
+            <div>
+                <strong>Prioridad:</strong>
+                <span id="prioridad-resultado"></span>
+            </div>
+            <div>
+                <strong>Tiempo espera máximo:</strong>
+                <span id="tiempo-resultado"></span>
+            </div>
+        </div>
+        
+        <div class="diagnostico-enfermeria" id="diagnostico-enfermeria">
+            <!-- Aquí se mostrará el diagnóstico de enfermería -->
+        </div>
+        
+        <div class="recomendaciones-enfermeria" id="recomendaciones-enfermeria">
+            <!-- Aquí se mostrarán las recomendaciones de enfermería -->
+        </div>
+        
+        <div class="resumen-datos" id="resumen-datos">
+            <!-- Aquí se mostrará el resumen con todas las alteraciones -->
+        </div>
+        
+        <div class="botones">
+            <button type="button" id="btn-copiar">Copiar Resumen Completo</button>
+        </div>
+    </div>
+    
+    <footer>
+        Diego Distel®
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables para el cronómetro
+            let inicioTriage = null;
+            let intervalo = null;
+            let tiempoTranscurrido = 0;
+
+            // Elementos del cronómetro
+            const tiempoTranscurridoElement = document.getElementById('tiempo-transcurrido');
+            const estadoCronometroElement = document.getElementById('estado-cronometro');
+
+            // Función para iniciar el cronómetro
+            function iniciarCronometro() {
+                if (!inicioTriage) {
+                    inicioTriage = Date.now();
+                    estadoCronometroElement.textContent = 'En curso...';
+                    estadoCronometroElement.style.color = '#0066aa';
+                    
+                    intervalo = setInterval(actualizarCronometro, 1000);
+                }
+            }
+
+            // Función para actualizar el cronómetro
+            function actualizarCronometro() {
+                const ahora = Date.now();
+                tiempoTranscurrido = Math.floor((ahora - inicioTriage) / 1000);
+                
+                const horas = Math.floor(tiempoTranscurrido / 3600);
+                const minutos = Math.floor((tiempoTranscurrido % 3600) / 60);
+                const segundos = tiempoTranscurrido % 60;
+                
+                const tiempoFormateado = 
+                    horas.toString().padStart(2, '0') + ':' +
+                    minutos.toString().padStart(2, '0') + ':' +
+                    segundos.toString().padStart(2, '0');
+                
+                tiempoTranscurridoElement.textContent = tiempoFormateado;
+            }
+
+            // Función para detener el cronómetro
+            function detenerCronometro() {
+                if (intervalo) {
+                    clearInterval(intervalo);
+                    intervalo = null;
+                    estadoCronometroElement.textContent = 'Finalizado';
+                    estadoCronometroElement.style.color = '#44cc44';
+                }
+            }
+
+            // Función para formatear el tiempo para el resumen
+            function formatearTiempoResumen(segundos) {
+                const horas = Math.floor(segundos / 3600);
+                const minutos = Math.floor((segundos % 3600) / 60);
+                const segs = segundos % 60;
+                
+                if (horas > 0) {
+                    return `${horas}h ${minutos}m ${segs}s`;
+                } else if (minutos > 0) {
+                    return `${minutos}m ${segs}s`;
+                } else {
+                    return `${segs}s`;
+                }
+            }
+
+            const form = document.getElementById('form-triage');
+            const colorTriage = document.getElementById('color-triage');
+            const prioridadTriage = document.getElementById('prioridad-triage');
+            const tiempoTriage = document.getElementById('tiempo-triage');
+            const btnCalcular = document.getElementById('btn-calcular');
+            const btnReiniciar = document.getElementById('btn-reiniciar');
+            const btnCopiar = document.getElementById('btn-copiar');
+            const resultadoTriage = document.getElementById('resultado-triage');
+            const colorResultado = document.getElementById('color-resultado');
+            const prioridadResultado = document.getElementById('prioridad-resultado');
+            const tiempoResultado = document.getElementById('tiempo-resultado');
+            const diagnosticoEnfermeria = document.getElementById('diagnostico-enfermeria');
+            const recomendacionesEnfermeria = document.getElementById('recomendaciones-enfermeria');
+            const resumenDatos = document.getElementById('resumen-datos');
+            const infoDolorToracico = document.getElementById('info-dolor-toracico');
+            const localizacionDolor = document.getElementById('localizacion-dolor');
+            const tipoDolorToracico = document.getElementById('tipo-dolor-toracico');
+            const presionArterialInput = document.getElementById('presion-arterial');
+            const indicadorPam = document.getElementById('indicador-pam');
+            const grupoPresionArterial = document.getElementById('grupo-presion-arterial');
+            
+            // Elementos de la sección de Lesión
+            const tipoLesion = document.getElementById('tipo-lesion');
+            const subseccionAgudo = document.getElementById('subseccion-agudo');
+            const subseccionCronico = document.getElementById('subseccion-cronico');
+            const tipoTraumatismoAgudo = document.getElementById('tipo-traumatismo-agudo');
+            const subseccionQuemadura = document.getElementById('subseccion-quemadura');
+            const subseccionTraumaAbierto = document.getElementById('subseccion-trauma-abierto');
+            const subseccionPunzanteTransfixiante = document.getElementById('subseccion-punzante-transfixiante');
+            
+            // Checkboxes para trauma abierto
+            const traumaPunzante = document.getElementById('trauma-punzante');
+            const traumaTransfixiante = document.getElementById('trauma-transfixiante');
+            
+            // Checkboxes "Sin problemas" para cada sección ABCDE
+            const sinProblemasA = document.getElementById('sin-problemas-a');
+            const sinProblemasB = document.getElementById('sin-problemas-b');
+            const sinProblemasC = document.getElementById('sin-problemas-c');
+            const sinProblemasD = document.getElementById('sin-problemas-d');
+            const sinProblemasE = document.getElementById('sin-problemas-e');
+            
+            // Elementos de las nuevas secciones
+            const saludMentalSelect = document.getElementById('salud-mental');
+            const reaccionAlergicaSelect = document.getElementById('reaccion-alergica');
+            
+            // Elementos del triángulo pediátrico
+            const seccionTriangulo = document.getElementById('seccion-triangulo-pediatrico');
+            const edadInput = document.getElementById('edad');
+            const inputsTriangulo = document.querySelectorAll('.triangulo-option input');
+            const diagnosticoTriangulo = document.getElementById('diagnostico-triangulo');
+            const normalCount = document.getElementById('normal-count');
+            const anormalCount = document.getElementById('anormal-count');
+            
+            // Elementos de la nueva sección de Violencia
+            const tipoViolenciaSelect = document.getElementById('tipo-violencia');
+            const descripcionViolenciaTextarea = document.getElementById('descripcion-violencia');
+            
+            // Función para mostrar/ocultar presión arterial según edad
+            function actualizarPresionArterial() {
+                const edad = parseInt(edadInput.value) || 0;
+                if (edad <= 10) {
+                    grupoPresionArterial.style.display = 'none';
+                    presionArterialInput.value = '';
+                } else {
+                    grupoPresionArterial.style.display = 'block';
+                }
+            }
+            
+            // Función para mostrar/ocultar el triángulo pediátrico según la edad
+            function actualizarTrianguloPediatrico() {
+                const edad = parseInt(edadInput.value) || 0;
+                if (edad <= 14 && edad >= 0) {
+                    seccionTriangulo.style.display = 'block';
+                } else {
+                    seccionTriangulo.style.display = 'none';
+                    // Limpiar selecciones del triángulo
+                    inputsTriangulo.forEach(input => {
+                        input.checked = false;
+                    });
+                    diagnosticoTriangulo.textContent = "Seleccione todos los parámetros para obtener un diagnóstico";
+                    normalCount.textContent = "0";
+                    anormalCount.textContent = "0";
+                }
+                actualizarTriageFlotante();
+            }
+            
+            // Función para actualizar contadores del triángulo
+            function actualizarContadoresTriangulo() {
+                let normales = 0;
+                let anormales = 0;
+                
+                inputsTriangulo.forEach(input => {
+                    if (input.checked) {
+                        if (input.value === 'normal') {
+                            normales++;
+                        } else {
+                            anormales++;
+                        }
+                    }
+                });
+                
+                normalCount.textContent = normales;
+                anormalCount.textContent = anormales;
+            }
+            
+            // Función para evaluar el estado del triángulo
+            function evaluarEstadoTriangulo() {
+                const apariencia = document.querySelector('input[name="apariencia"]:checked');
+                const respiratorio = document.querySelector('input[name="respiratorio"]:checked');
+                const circulacion = document.querySelector('input[name="circulacion"]:checked');
+                
+                if (!apariencia || !respiratorio || !circulacion) {
+                    diagnosticoTriangulo.textContent = "Seleccione todos los parámetros para obtener un diagnóstico";
+                    return;
+                }
+                
+                const aparienciaVal = apariencia.value;
+                const respiratorioVal = respiratorio.value;
+                const circulacionVal = circulacion.value;
+                
+                let estado = "";
+                
+                if (aparienciaVal === "anormal" && respiratorioVal === "normal" && circulacionVal === "normal") {
+                    estado = "Disfunción cerebral primaria o enfermedad sistémica";
+                } else if (aparienciaVal === "normal" && respiratorioVal === "anormal" && circulacionVal === "normal") {
+                    estado = "Dificultad respiratoria";
+                } else if (aparienciaVal === "anormal" && respiratorioVal === "anormal" && circulacionVal === "normal") {
+                    estado = "Insuficiencia respiratoria";
+                } else if (aparienciaVal === "normal" && respiratorioVal === "normal" && circulacionVal === "anormal") {
+                    estado = "Choque compensado";
+                } else if (aparienciaVal === "anormal" && respiratorioVal === "normal" && circulacionVal === "anormal") {
+                    estado = "Choque descompensado";
+                } else if (aparienciaVal === "anormal" && respiratorioVal === "anormal" && circulacionVal === "anormal") {
+                    estado = "Insuficiencia cardio-respiratoria";
+                } else if (aparienciaVal === "normal" && respiratorioVal === "normal" && circulacionVal === "normal") {
+                    estado = "Paciente estable";
+                }
+                
+                diagnosticoTriangulo.textContent = estado;
+            }
+            
+            // Event listeners para el triángulo pediátrico
+            edadInput.addEventListener('input', function() {
+                actualizarPresionArterial();
+                actualizarTrianguloPediatrico();
+            });
+            
+            inputsTriangulo.forEach(input => {
+                input.addEventListener('change', function() {
+                    actualizarContadoresTriangulo();
+                    evaluarEstadoTriangulo();
+                    actualizarTriageFlotante();
+                });
+            });
+            
+            // Función para calcular PAM (Presión Arterial Media)
+            function calcularPAM(presionArterial) {
+                if (!presionArterial) return null;
+                
+                const partes = presionArterial.split('/');
+                if (partes.length !== 2) return null;
+                
+                const sistolica = parseInt(partes[0]);
+                const diastolica = parseInt(partes[1]);
+                
+                if (isNaN(sistolica) || isNaN(diastolica)) return null;
+                
+                // Fórmula: PAM = diastólica + 1/3 (sistólica - diastólica)
+                return Math.round(diastolica + (sistolica - diastolica) / 3);
+            }
+            
+            // Función para evaluar si la PAM es normal
+            function esPAMNormal(pam) {
+                if (pam === null) return false;
+                // Rango normal de PAM: 70-100 mmHg
+                return pam >= 70 && pam <= 100;
+            }
+            
+            // Función para obtener valores sistólica y diastólica
+            function obtenerPresionArterial(presionArterial) {
+                if (!presionArterial) return { sistolica: 0, diastolica: 0 };
+                const partes = presionArterial.split('/');
+                if (partes.length !== 2) return { sistolica: 0, diastolica: 0 };
+                return {
+                    sistolica: parseInt(partes[0]) || 0,
+                    diastolica: parseInt(partes[1]) || 0
+                };
+            }
+            
+            // Actualizar indicador de PAM cuando cambia la presión arterial
+            presionArterialInput.addEventListener('input', function() {
+                const pam = calcularPAM(this.value);
+                
+                if (pam !== null) {
+                    indicadorPam.textContent = `PAM: ${pam} mmHg`;
+                    indicadorPam.style.display = 'block';
+                    
+                    if (esPAMNormal(pam)) {
+                        indicadorPam.className = 'indicador-pam pam-normal';
+                    } else {
+                        indicadorPam.className = 'indicador-pam pam-anormal';
+                    }
+                } else {
+                    indicadorPam.style.display = 'none';
+                }
+                
+                actualizarTriageFlotante();
+                aplicarEstiloValor(this);
+            });
+            
+            // Controlar la visibilidad de las subsecciones según el tipo de lesión seleccionado
+            tipoLesion.addEventListener('change', function() {
+                if (this.value === 'agudo') {
+                    subseccionAgudo.style.display = 'block';
+                    subseccionCronico.style.display = 'none';
+                } else if (this.value === 'cronico') {
+                    subseccionAgudo.style.display = 'none';
+                    subseccionCronico.style.display = 'block';
+                } else {
+                    subseccionAgudo.style.display = 'none';
+                    subseccionCronico.style.display = 'none';
+                }
+                actualizarTriageFlotante();
+            });
+            
+            // Controlar la visibilidad de las subsecciones de traumatismo agudo
+            tipoTraumatismoAgudo.addEventListener('change', function() {
+                if (this.value === 'quemadura') {
+                    subseccionQuemadura.style.display = 'block';
+                    subseccionTraumaAbierto.style.display = 'none';
+                    subseccionPunzanteTransfixiante.style.display = 'none';
+                } else if (this.value === 'abierto') {
+                    subseccionQuemadura.style.display = 'none';
+                    subseccionTraumaAbierto.style.display = 'block';
+                    // Mostrar subsección punzante/transfixiante si corresponde
+                    if (traumaPunzante.checked || traumaTransfixiante.checked) {
+                        subseccionPunzanteTransfixiante.style.display = 'block';
+                    } else {
+                        subseccionPunzanteTransfixiante.style.display = 'none';
+                    }
+                } else {
+                    subseccionQuemadura.style.display = 'none';
+                    subseccionTraumaAbierto.style.display = 'none';
+                    subseccionPunzanteTransfixiante.style.display = 'none';
+                }
+                actualizarTriageFlotante();
+            });
+            
+            // Controlar la visibilidad de la subsección punzante/transfixiante
+            traumaPunzante.addEventListener('change', function() {
+                if (this.checked || traumaTransfixiante.checked) {
+                    subseccionPunzanteTransfixiante.style.display = 'block';
+                } else {
+                    subseccionPunzanteTransfixiante.style.display = 'none';
+                }
+                actualizarTriageFlotante();
+            });
+            
+            traumaTransfixiante.addEventListener('change', function() {
+                if (this.checked || traumaPunzante.checked) {
+                    subseccionPunzanteTransfixiante.style.display = 'block';
+                } else {
+                    subseccionPunzanteTransfixiante.style.display = 'none';
+                }
+                actualizarTriageFlotante();
+            });
+            
+            // Controlar la visibilidad de la información de dolor torácico
+            localizacionDolor.addEventListener('change', function() {
+                if (this.value === 'torax') {
+                    infoDolorToracico.style.display = 'block';
+                } else {
+                    infoDolorToracico.style.display = 'none';
+                    tipoDolorToracico.value = '';
+                }
+                actualizarTriageFlotante();
+            });
+            
+            // Función para establecer valores normales cuando se marca "Sin problemas"
+            function configurarSinProblemas(checkbox, elementos) {
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        elementos.forEach(elemento => {
+                            if (elemento.type === 'select-one') {
+                                // Establecer el primer valor normal disponible
+                                for (let i = 0; i < elemento.options.length; i++) {
+                                    if (elemento.options[i].value && esValorNormal(elemento, elemento.options[i].value)) {
+                                        elemento.value = elemento.options[i].value;
+                                        break;
+                                    }
+                                }
+                            }
+                            elemento.disabled = true;
+                            aplicarEstiloValor(elemento);
+                        });
+                    } else {
+                        elementos.forEach(elemento => {
+                            elemento.disabled = false;
+                            aplicarEstiloValor(elemento);
+                        });
+                    }
+                    actualizarTriageFlotante();
+                });
+            }
+            
+            // Configurar "Sin problemas" para cada sección ABCDE
+            configurarSinProblemas(sinProblemasA, [
+                document.getElementById('via-aerea'),
+                document.getElementById('sonidos-respiratorios')
+            ]);
+            
+            configurarSinProblemas(sinProblemasB, [
+                document.getElementById('esfuerzo-respiratorio'),
+                document.getElementById('posicion-paciente')
+            ]);
+            
+            configurarSinProblemas(sinProblemasC, [
+                document.getElementById('calidad-pulso'),
+                document.getElementById('coloracion-piel'),
+                document.getElementById('tiempo-llenado-capilar')
+            ]);
+            
+            configurarSinProblemas(sinProblemasD, [
+                document.getElementById('glasgow'),
+                document.getElementById('conciencia'),
+                document.getElementById('pupilas'),
+                document.getElementById('deficit-meningeo'),
+                document.getElementById('deficit-motor')
+            ]);
+            
+            configurarSinProblemas(sinProblemasE, [
+                document.getElementById('agentes-lesivos'),
+                document.getElementById('tipo-lesion'),
+                document.getElementById('tipo-traumatismo-agudo'),
+                document.getElementById('tipo-lesion-cronica')
+            ]);
+            
+            // Función para determinar si un valor es normal
+            function esValorNormal(elemento, valor) {
+                // Evaluar vía aérea
+                if (elemento.id === 'via-aerea' && valor) {
+                    return valor === 'permeables';
+                }
+                
+                // Evaluar sonidos respiratorios
+                if (elemento.id === 'sonidos-respiratorios' && valor) {
+                    return valor === 'normales';
+                }
+                
+                // Evaluar esfuerzo respiratorio
+                if (elemento.id === 'esfuerzo-respiratorio' && valor) {
+                    return valor === 'normal';
+                }
+                
+                // Evaluar posición del paciente
+                if (elemento.id === 'posicion-paciente' && valor) {
+                    return valor === 'decubito-supino' || valor === 'fowler';
+                }
+                
+                // Evaluar calidad del pulso
+                if (elemento.id === 'calidad-pulso' && valor) {
+                    return valor === 'normal';
+                }
+                
+                // Evaluar coloración de piel
+                if (elemento.id === 'coloracion-piel' && valor) {
+                    return valor === 'normal';
+                }
+                
+                // Evaluar tiempo de llenado capilar
+                if (elemento.id === 'tiempo-llenado-capilar' && valor) {
+                    return valor === 'normal';
+                }
+                
+                // Evaluar escala de Glasgow
+                if (elemento.id === 'glasgow' && valor) {
+                    return valor === '15';
+                }
+                
+                // Evaluar nivel de conciencia
+                if (elemento.id === 'conciencia' && valor) {
+                    return valor === 'alerta';
+                }
+                
+                // Evaluar pupilas
+                if (elemento.id === 'pupilas' && valor) {
+                    return valor === 'normales';
+                }
+                
+                // Evaluar signos meníngeos
+                if (elemento.id === 'deficit-meningeo' && valor) {
+                    return valor === 'ausentes';
+                }
+                
+                // Evaluar déficit motor
+                if (elemento.id === 'deficit-motor' && valor) {
+                    return valor === 'ausente';
+                }
+                
+                // Para otros elementos, considerar vacío como normal
+                return !valor;
+            }
+            
+            // Función para evaluar si un valor es anormal - CORREGIDA PARA EDAD 0 Y FC ADULTOS NORMAL: 50-105
+            function esValorAnormal(elemento, valor) {
+                const edad = parseInt(edadInput.value) || 0;
+                const esPediatrico = edad < 14;
+                
+                // Evaluar frecuencia cardíaca (NORMAL ADULTO: 50-105)
+                if (elemento.id === 'frecuencia-cardiaca' && valor) {
+                    if (esPediatrico) {
+                        // Rangos pediátricos según edad
+                        if (edad === 0) {
+                            return valor < 120 || valor > 160;
+                        } else if (edad < 1) {
+                            return valor < 100 || valor > 160;
+                        } else if (edad < 3) {
+                            return valor < 90 || valor > 150;
+                        } else if (edad < 6) {
+                            return valor < 80 || valor > 140;
+                        } else if (edad < 12) {
+                            return valor < 70 || valor > 120;
+                        } else {
+                            return valor < 60 || valor > 100;
+                        }
+                    } else {
+                        // ADULTOS: Rango normal 50-105
+                        return valor < 50 || valor > 105;
+                    }
+                }
+                
+                // Evaluar presión arterial (sistólica)
+                if (elemento.id === 'presion-arterial' && valor && edad > 10) {
+                    const sistolica = parseInt(valor.split('/')[0]);
+                    return sistolica < 90 || sistolica > 140;
+                }
+                
+                // Evaluar frecuencia respiratoria
+                if (elemento.id === 'frecuencia-respiratoria' && valor) {
+                    if (esPediatrico) {
+                        if (edad === 0) {
+                            return valor < 30 || valor > 60;
+                        } else if (edad < 1) {
+                            return valor < 30 || valor > 60;
+                        } else if (edad < 3) {
+                            return valor < 24 || valor > 40;
+                        } else if (edad < 6) {
+                            return valor < 22 || valor > 34;
+                        } else if (edad < 12) {
+                            return valor < 18 || valor > 30;
+                        } else {
+                            return valor < 12 || valor > 20;
+                        }
+                    } else {
+                        return valor < 12 || valor > 20;
+                    }
+                }
+                
+                // Evaluar temperatura
+                if (elemento.id === 'temperatura' && valor) {
+                    return valor < 36 || valor > 37.5;
+                }
+                
+                // Evaluar saturación de oxígeno
+                if (elemento.id === 'saturacion-oxigeno' && valor) {
+                    return valor < 95;
+                }
+                
+                // Evaluar tiempo de llenado capilar
+                if (elemento.id === 'tiempo-llenado-capilar' && valor) {
+                    return valor !== 'normal';
+                }
+                
+                // Evaluar escala de Glasgow
+                if (elemento.id === 'glasgow' && valor) {
+                    return valor < 15;
+                }
+                
+                // Evaluar nivel de conciencia
+                if (elemento.id === 'conciencia' && valor) {
+                    return valor !== 'alerta';
+                }
+                
+                // Evaluar vía aérea
+                if (elemento.id === 'via-aerea' && valor) {
+                    return valor !== 'permeables';
+                }
+                
+                // Evaluar sonidos respiratorios
+                if (elemento.id === 'sonidos-respiratorios' && valor) {
+                    return valor !== 'normales';
+                }
+                
+                // Evaluar esfuerzo respiratorio
+                if (elemento.id === 'esfuerzo-respiratorio' && valor) {
+                    return valor !== 'normal';
+                }
+                
+                // Evaluar posición del paciente
+                if (elemento.id === 'posicion-paciente' && valor) {
+                    return valor === 'ortopneica' || valor === 'tripode';
+                }
+                
+                // Evaluar calidad del pulso
+                if (elemento.id === 'calidad-pulso' && valor) {
+                    return valor !== 'normal';
+                }
+                
+                // Evaluar coloración de piel
+                if (elemento.id === 'coloracion-piel' && valor) {
+                    return valor !== 'normal';
+                }
+                
+                // Evaluar pupilas
+                if (elemento.id === 'pupilas' && valor) {
+                    return valor !== 'normales';
+                }
+                
+                // Evaluar signos meníngeos
+                if (elemento.id === 'deficit-meningeo' && valor) {
+                    return valor !== 'ausentes';
+                }
+                
+                // Evaluar déficit motor
+                if (elemento.id === 'deficit-motor' && valor) {
+                    return valor !== 'ausente';
+                }
+                
+                // Evaluar dolor
+                if (elemento.id === 'dolor' && valor) {
+                    return valor >= 4;
+                }
+                
+                // Evaluar glucemia
+                if (elemento.id === 'glucemia' && valor && valor > 0) {
+                    return valor < 70 || valor > 180;
+                }
+                
+                // Evaluar superficie de quemadura
+                if (elemento.id === 'superficie-quemadura' && valor) {
+                    return valor > 10;
+                }
+                
+                // Evaluar profundidad de herida punzante/transfixiante
+                if (elemento.id === 'profundidad-herida' && valor) {
+                    return valor > 2;
+                }
+                
+                // Evaluar salud mental
+                if (elemento.id === 'salud-mental' && valor) {
+                    return valor !== '';
+                }
+                
+                // Evaluar reacción alérgica
+                if (elemento.id === 'reaccion-alergica' && valor) {
+                    return valor !== '';
+                }
+                
+                // Evaluar violencia
+                if (elemento.id === 'tipo-violencia' && valor) {
+                    return valor !== '';
+                }
+                
+                return false;
+            }
+            
+            // Función para aplicar estilos según si el valor es normal o anormal
+            function aplicarEstiloValor(elemento) {
+                const valor = elemento.value;
+                const edad = parseInt(edadInput.value) || 0;
+                const esPediatrico = edad < 14;
+                
+                // Remover clases anteriores
+                elemento.classList.remove('valor-normal', 'valor-anormal', 'valor-normal-pediatrico');
+                
+                // Solo aplicar estilos si hay un valor seleccionado
+                if (valor) {
+                    if (esValorAnormal(elemento, valor)) {
+                        elemento.classList.add('valor-anormal');
+                    } else {
+                        if (esPediatrico) {
+                            elemento.classList.add('valor-normal-pediatrico');
+                        } else {
+                            elemento.classList.add('valor-normal');
+                        }
+                    }
+                }
+            }
+            
+            // Actualizar triage flotante en tiempo real
+            const inputs = form.querySelectorAll('input, select, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    actualizarTriageFlotante();
+                    aplicarEstiloValor(this);
+                });
+                input.addEventListener('change', function() {
+                    actualizarTriageFlotante();
+                    aplicarEstiloValor(this);
+                });
+            });
+            
+            function actualizarTriageFlotante() {
+                const datos = obtenerDatosFormulario();
+                const resultado = calcularTriage(datos);
+                
+                colorTriage.style.backgroundColor = resultado.color;
+                prioridadTriage.textContent = resultado.prioridad;
+                tiempoTriage.textContent = resultado.tiempoEspera;
+            }
+            
+            function obtenerDatosFormulario() {
+                const antecedentesCheckboxes = document.querySelectorAll('input[name="antecedentes"]:checked');
+                const antecedentesSeleccionados = Array.from(antecedentesCheckboxes).map(cb => cb.value);
+                
+                const quemaduraCheckboxes = document.querySelectorAll('input[name="tipo-quemadura"]:checked');
+                const tiposQuemadura = Array.from(quemaduraCheckboxes).map(cb => cb.value);
+                
+                const traumaAbiertoCheckboxes = document.querySelectorAll('input[name="tipo-trauma-abierto"]:checked');
+                const tiposTraumaAbierto = Array.from(traumaAbiertoCheckboxes).map(cb => cb.value);
+                
+                const presionArterial = document.getElementById('presion-arterial').value;
+                const pam = calcularPAM(presionArterial);
+                const presion = obtenerPresionArterial(presionArterial);
+                
+                const apariencia = document.querySelector('input[name="apariencia"]:checked')?.value || '';
+                const respiratorio = document.querySelector('input[name="respiratorio"]:checked')?.value || '';
+                const circulacion = document.querySelector('input[name="circulacion"]:checked')?.value || '';
+                const diagnosticoTrianguloText = document.getElementById('diagnostico-triangulo').textContent;
+                
+                return {
+                    nombre: document.getElementById('nombre').value,
+                    edad: parseInt(document.getElementById('edad').value) || 0,
+                    genero: document.getElementById('genero').value,
+                    antecedentes: antecedentesSeleccionados,
+                    otrosAntecedentes: document.getElementById('otros-antecedentes').value,
+                    
+                    frecuenciaCardiaca: parseInt(document.getElementById('frecuencia-cardiaca').value) || 0,
+                    presionArterial: presionArterial,
+                    presionSistolica: presion.sistolica,
+                    presionDiastolica: presion.diastolica,
+                    pam: pam,
+                    frecuenciaRespiratoria: parseInt(document.getElementById('frecuencia-respiratoria').value) || 0,
+                    temperatura: parseFloat(document.getElementById('temperatura').value) || 0,
+                    saturacionOxigeno: parseInt(document.getElementById('saturacion-oxigeno').value) || 0,
+                    tiempoLlenadoCapilar: document.getElementById('tiempo-llenado-capilar').value,
+                    glucemia: parseInt(document.getElementById('glucemia').value) || 0,
+                    
+                    apariencia: apariencia,
+                    trabajoRespiratorio: respiratorio,
+                    circulacionPiel: circulacion,
+                    diagnosticoTriangulo: diagnosticoTrianguloText,
+                    
+                    viaAerea: document.getElementById('via-aerea').value,
+                    sonidosRespiratorios: document.getElementById('sonidos-respiratorios').value,
+                    esfuerzoRespiratorio: document.getElementById('esfuerzo-respiratorio').value,
+                    posicionPaciente: document.getElementById('posicion-paciente').value,
+                    calidadPulso: document.getElementById('calidad-pulso').value,
+                    coloracionPiel: document.getElementById('coloracion-piel').value,
+                    glasgow: parseInt(document.getElementById('glasgow').value) || 15,
+                    conciencia: document.getElementById('conciencia').value,
+                    pupilas: document.getElementById('pupilas').value,
+                    deficitMeningeo: document.getElementById('deficit-meningeo').value,
+                    deficitMotor: document.getElementById('deficit-motor').value,
+                    agentesLesivos: document.getElementById('agentes-lesivos').value,
+                    
+                    tipoLesion: document.getElementById('tipo-lesion').value,
+                    tipoTraumatismoAgudo: document.getElementById('tipo-traumatismo-agudo').value,
+                    tipoLesionCronica: document.getElementById('tipo-lesion-cronica').value,
+                    
+                    tiposQuemadura: tiposQuemadura,
+                    superficieQuemadura: parseFloat(document.getElementById('superficie-quemadura').value) || 0,
+                    gradoQuemadura: document.getElementById('grado-quemadura').value,
+                    
+                    tiposTraumaAbierto: tiposTraumaAbierto,
+                    profundidadHerida: parseFloat(document.getElementById('profundidad-herida').value) || 0,
+                    estructurasAfectadas: document.getElementById('estructuras-afectadas').value,
+                    cuerpoExtrano: document.getElementById('cuerpo-extrano').value,
+                    
+                    dolor: parseInt(document.getElementById('dolor').value) || 0,
+                    localizacionDolor: document.getElementById('localizacion-dolor').value,
+                    tipoDolorToracico: document.getElementById('tipo-dolor-toracico').value,
+                    caracteristicaDolor: document.getElementById('caracteristica-dolor').value,
+                    
+                    saludMental: document.getElementById('salud-mental').value,
+                    reaccionAlergica: document.getElementById('reaccion-alergica').value,
+                    
+                    tipoViolencia: document.getElementById('tipo-violencia').value,
+                    descripcionViolencia: document.getElementById('descripcion-violencia').value,
+                    
+                    resolucion: document.querySelector('input[name="resolucion"]:checked')?.value || '',
+                    
+                    motivo: document.getElementById('motivo').value,
+                    sintomas: document.getElementById('sintomas').value
+                };
+            }
+            
+            function calcularTriage(datos) {
+                let puntuacion = 0;
+                const esPediatrico = datos.edad < 14;
+                
+                // Evaluar factores de riesgo (edad)
+                if ((datos.edad < 1 && datos.edad > 0) || datos.edad > 80) puntuacion += 1;
+                
+                // Evaluar antecedentes
+                puntuacion += Math.min(datos.antecedentes.length * 0.5, 2);
+                
+                // Evaluar triángulo pediátrico si es aplicable
+                if (esPediatrico) {
+                    if (datos.diagnosticoTriangulo.includes("Insuficiencia cardio-respiratoria") || 
+                        datos.diagnosticoTriangulo.includes("Choque descompensado")) {
+                        puntuacion += 4;
+                    } else if (datos.diagnosticoTriangulo.includes("Insuficiencia respiratoria") || 
+                               datos.diagnosticoTriangulo.includes("Choque compensado")) {
+                        puntuacion += 3;
+                    } else if (datos.diagnosticoTriangulo.includes("Dificultad respiratoria") || 
+                               datos.diagnosticoTriangulo.includes("Disfunción cerebral")) {
+                        puntuacion += 2;
+                    }
+                }
+                
+                // A - VÍA AÉREA
+                if (datos.viaAerea === 'completamente-obstruida') puntuacion += 4;
+                else if (datos.viaAerea === 'parcial-obstruida') puntuacion += 2;
+                
+                if (datos.sonidosRespiratorios === 'ausentes' || datos.sonidosRespiratorios === 'estridor') puntuacion += 3;
+                else if (datos.sonidosRespiratorios === 'silbidos') puntuacion += 1;
+                
+                // B - RESPIRACIÓN
+                if (esValorAnormal({id: 'frecuencia-respiratoria'}, datos.frecuenciaRespiratoria)) {
+                    puntuacion += esPediatrico ? 2 : 3;
+                }
+                
+                if (datos.esfuerzoRespiratorio === 'quejido-espiratorio' || datos.esfuerzoRespiratorio === 'tiraciones') puntuacion += 3;
+                else if (datos.esfuerzoRespiratorio === 'uso-musculos-accesorios') puntuacion += 1;
+                
+                if (datos.posicionPaciente === 'ortopneica' || datos.posicionPaciente === 'tripode') puntuacion += 2;
+                
+                if (datos.saturacionOxigeno < 90) puntuacion += 3;
+                else if (datos.saturacionOxigeno < 94) puntuacion += 1;
+                
+                // C - CIRCULACIÓN
+                if (esValorAnormal({id: 'frecuencia-cardiaca'}, datos.frecuenciaCardiaca)) {
+                    puntuacion += esPediatrico ? 2 : 3;
+                }
+                
+                // Evaluar presión arterial (sistólica) solo si es mayor de 10 años
+                if (datos.edad > 10) {
+                    const presionSistolica = datos.presionSistolica;
+                    // Puntuación normal por hipertensión
+                    if (presionSistolica < 90 || presionSistolica > 200) puntuacion += 3;
+                    else if (presionSistolica < 100 || presionSistolica > 180) puntuacion += 1;
+                    
+                    // PUNTOS EXTRAS POR PRESIÓN ARTERIAL SEVERA
+                    // +1 punto extra para valores ≥ 180/110 mmHg
+                    if (presionSistolica >= 180 && datos.presionDiastolica >= 110) {
+                        puntuacion += 1;
+                    }
+                    // +2 puntos extra para valores ≥ 200/120 mmHg
+                    if (presionSistolica >= 200 && datos.presionDiastolica >= 120) {
+                        puntuacion += 2;
+                    }
+                    
+                    // Evaluar PAM
+                    if (datos.pam !== null && !esPAMNormal(datos.pam)) {
+                        puntuacion += 1;
+                    }
+                }
+                
+                // Evaluar tiempo de llenado capilar
+                if (datos.tiempoLlenadoCapilar === 'severa') puntuacion += 3;
+                else if (datos.tiempoLlenadoCapilar === 'moderado') puntuacion += 1;
+                
+                if (datos.calidadPulso === 'ausente') puntuacion += 3;
+                else if (datos.calidadPulso === 'filiforme') puntuacion += 1;
+                
+                if (datos.coloracionPiel === 'cianosis-central' || datos.coloracionPiel === 'marmoreo') puntuacion += 2;
+                else if (datos.coloracionPiel === 'palida' || datos.coloracionPiel === 'cianosis-periferica') puntuacion += 1;
+                
+                // D - DÉFICIT NEUROLÓGICO
+                if (datos.glasgow < 9) puntuacion += 4;
+                else if (datos.glasgow < 13) puntuacion += 2;
+                else if (datos.glasgow < 15) puntuacion += 0.5;
+                
+                if (datos.conciencia === 'coma') puntuacion += 4;
+                else if (datos.conciencia === 'estupor') puntuacion += 2;
+                else if (datos.conciencia === 'somnoliento') puntuacion += 1;
+                
+                if (datos.pupilas === 'no-reactivas' || datos.pupilas === 'anisocoria') puntuacion += 2;
+                
+                if (datos.deficitMeningeo === 'rigidez-nucal' || datos.deficitMeningeo === 'kernig-positivo' || datos.deficitMeningeo === 'brudzinski-positivo') puntuacion += 2;
+                
+                if (datos.deficitMotor === 'hemiparesia-derecha' || datos.deficitMotor === 'hemiparesia-izquierda') puntuacion += 2;
+                else if (datos.deficitMotor === 'paraparesia' || datos.deficitMotor === 'tetraparesia') puntuacion += 3;
+                
+                // E - EXPOSICIÓN
+                if (datos.temperatura > 39 || datos.temperatura < 35) puntuacion += 1;
+                
+                // Evaluar dolor
+                if (datos.dolor >= 8) puntuacion += 1;
+                else if (datos.dolor >= 5) puntuacion += 0.5;
+                
+                // PUNTO EXTRA: Si el paciente tiene signos vitales aumentados Y dolor
+                const tieneSignosVitalesAumentados = 
+                    (esValorAnormal({id: 'frecuencia-cardiaca'}, datos.frecuenciaCardiaca)) || 
+                    (datos.edad > 10 && datos.presionSistolica > 140) || 
+                    (esValorAnormal({id: 'frecuencia-respiratoria'}, datos.frecuenciaRespiratoria)) || 
+                    (datos.temperatura > 37.5);
+                
+                if (tieneSignosVitalesAumentados && datos.dolor > 0) {
+                    puntuacion += 1;
+                }
+                
+                // Punto extra si el dolor se ubica en tórax - SOLO si es típico
+                if (datos.localizacionDolor === 'torax' && datos.tipoDolorToracico === 'tipico') puntuacion += 1;
+                
+                // Evaluar tipo de lesión
+                if (datos.tipoLesion === 'agudo') {
+                    if (datos.tipoTraumatismoAgudo === 'multiple') puntuacion += 2;
+                    else if (datos.tipoTraumatismoAgudo === 'abierto') puntuacion += 1;
+                    else if (datos.tipoTraumatismoAgudo === 'quemadura') {
+                        if (datos.superficieQuemadura > 20) puntuacion += 3;
+                        else if (datos.superficieQuemadura > 10) puntuacion += 2;
+                        else if (datos.superficieQuemadura > 5) puntuacion += 1;
+                        
+                        if (datos.gradoQuemadura === '3' || datos.gradoQuemadura === '4') puntuacion += 2;
+                        else if (datos.gradoQuemadura === '2b') puntuacion += 1;
+                        
+                        if (datos.tiposQuemadura.includes('electricidad')) puntuacion += 1;
+                        if (datos.tiposQuemadura.includes('quimicos')) puntuacion += 1;
+                    }
+                    
+                    if (datos.tipoTraumatismoAgudo === 'abierto') {
+                        if (datos.tiposTraumaAbierto.includes('punzante') || datos.tiposTraumaAbierto.includes('transfixiante')) {
+                            if (datos.profundidadHerida > 5) puntuacion += 2;
+                            else if (datos.profundidadHerida > 2) puntuacion += 1;
+                            
+                            if (datos.cuerpoExtrano === 'si-presente') puntuacion += 2;
+                            else if (datos.cuerpoExtrano === 'si-retirado') puntuacion += 1;
+                            
+                            if (datos.estructurasAfectadas && datos.estructurasAfectadas.length > 0) puntuacion += 1;
+                        }
+                    }
+                }
+                
+                // Evaluar salud mental
+                if (datos.saludMental === 'conducta-suicida') puntuacion += 4;
+                else if (datos.saludMental === 'conducta-violenta' || datos.saludMental === 'psicosis-aguda' || datos.saludMental === 'abuso-sustancias') puntuacion += 3;
+                else if (datos.saludMental === 'crisis-angustia') puntuacion += 2;
+                else if (datos.saludMental === 'malestar-emocional') puntuacion += 1;
+                
+                // Evaluar reacción alérgica
+                if (datos.reaccionAlergica === 'anafilaxia') puntuacion += 4;
+                else if (datos.reaccionAlergica === 'alergia-respiratoria') puntuacion += 2;
+                else if (datos.reaccionAlergica === 'alergia-cutanea' || datos.reaccionAlergica === 'alergia-alimentaria') puntuacion += 1;
+                
+                // Evaluar violencia
+                if (datos.tipoViolencia === 'domestica') puntuacion += 2;
+                else if (datos.tipoViolencia === 'genero') puntuacion += 3;
+                else if (datos.tipoViolencia === 'infantil') puntuacion += 4;
+                
+                // Evaluar motivo de consulta
+                const motivo = datos.motivo.toLowerCase();
+                if (motivo.includes('dolor torácico típico') || motivo.includes('convulsión') ||
+                    motivo.includes('hemorragia activa') || motivo.includes('intoxicación') ||
+                    motivo.includes('politraumatismo') || motivo.includes('quemadura')) {
+                    puntuacion += 1;
+                }
+                
+                // Determinar nivel de triage según puntuación
+                if (esPediatrico) {
+                    if (puntuacion >= 6) {
+                        return {
+                            color: 'var(--rojo)',
+                            prioridad: 'Rojo - Resucitación',
+                            tiempoEspera: 'Inmediato',
+                            nivel: 1
+                        };
+                    } else if (puntuacion >= 4) {
+                        return {
+                            color: 'var(--naranja)',
+                            prioridad: 'Naranja - Emergencia',
+                            tiempoEspera: '10 minutos',
+                            nivel: 2
+                        };
+                    } else if (puntuacion >= 2) {
+                        return {
+                            color: 'var(--amarillo)',
+                            prioridad: 'Amarillo - Urgencia',
+                            tiempoEspera: '60 minutos',
+                            nivel: 3
+                        };
+                    } else if (puntuacion >= 0.5) {
+                        return {
+                            color: 'var(--verde)',
+                            prioridad: 'Verde - Urgencia menor',
+                            tiempoEspera: '120 minutos',
+                            nivel: 4
+                        };
+                    } else {
+                        return {
+                            color: 'var(--azul)',
+                            prioridad: 'Azul - No urgente',
+                            tiempoEspera: '240 minutos',
+                            nivel: 5
+                        };
+                    }
+                } else {
+                    if (puntuacion >= 8) {
+                        return {
+                            color: 'var(--rojo)',
+                            prioridad: 'Rojo - Resucitación',
+                            tiempoEspera: 'Inmediato',
+                            nivel: 1
+                        };
+                    } else if (puntuacion >= 5) {
+                        return {
+                            color: 'var(--naranja)',
+                            prioridad: 'Naranja - Emergencia',
+                            tiempoEspera: '10 minutos',
+                            nivel: 2
+                        };
+                    } else if (puntuacion >= 3) {
+                        return {
+                            color: 'var(--amarillo)',
+                            prioridad: 'Amarillo - Urgencia',
+                            tiempoEspera: '60 minutos',
+                            nivel: 3
+                        };
+                    } else if (puntuacion >= 1) {
+                        return {
+                            color: 'var(--verde)',
+                            prioridad: 'Verde - Urgencia menor',
+                            tiempoEspera: '120 minutos',
+                            nivel: 4
+                        };
+                    } else {
+                        return {
+                            color: 'var(--azul)',
+                            prioridad: 'Azul - No urgente',
+                            tiempoEspera: '240 minutos',
+                            nivel: 5
+                        };
+                    }
+                }
+            }
+            
+            // Función para generar diagnósticos NANDA 2025
+            function generarDiagnosticosNANDA(datos) {
+                const diagnosticos = [];
+                
+                if (datos.viaAerea !== 'permeables' || datos.sonidosRespiratorios !== 'normales' || 
+                    datos.esfuerzoRespiratorio !== 'normal' || esValorAnormal({id: 'frecuencia-respiratoria'}, datos.frecuenciaRespiratoria)) {
+                    diagnosticos.push("00032 - Deterioro del intercambio de gases relacionado con alteración de la ventilación-perfusión");
+                    diagnosticos.push("00031 - Patrón respiratorio ineficaz relacionado con fatiga de músculos respiratorios");
+                }
+                
+                if (esValorAnormal({id: 'frecuencia-cardiaca'}, datos.frecuenciaCardiaca) || 
+                    (datos.edad > 10 && datos.pam !== null && !esPAMNormal(datos.pam)) || datos.calidadPulso !== 'normal') {
+                    diagnosticos.push("00029 - Deterioro del gasto cardíaco relacionado con alteración de la contractilidad miocárdica");
+                    diagnosticos.push("00030 - Riesgo de disminución del gasto cardíaco relacionado con arritmias");
+                }
+                
+                if (datos.glasgow < 15 || datos.conciencia !== 'alerta' || datos.pupilas !== 'normales' ||
+                    datos.deficitMeningeo !== 'ausentes' || datos.deficitMotor !== 'ausente') {
+                    diagnosticos.push("00128 - Deterioro de la perfusión tisular cerebral relacionado con hipoperfusión");
+                    diagnosticos.push("00129 - Riesgo de deterioro de la función neurológica relacionado con trauma craneoencefálico");
+                }
+                
+                if (datos.tiempoLlenadoCapilar !== 'normal' || datos.coloracionPiel !== 'normal' || 
+                    datos.saturacionOxigeno < 95) {
+                    diagnosticos.push("00204 - Deterioro de la perfusión tisular periférica relacionado con hipovolemia");
+                    diagnosticos.push("00203 - Riesgo de shock relacionado con pérdida de volumen intravascular");
+                }
+                
+                if (datos.dolor >= 4) {
+                    diagnosticos.push("00132 - Dolor agudo relacionado con agentes lesivos biológicos/físicos");
+                }
+                
+                if (datos.temperatura < 36 || datos.temperatura > 37.5) {
+                    diagnosticos.push("00008 - Termorregulación ineficaz relacionado con proceso inflamatorio");
+                }
+                
+                if (datos.glucemia !== 0 && (datos.glucemia < 70 || datos.glucemia > 180)) {
+                    diagnosticos.push("00179 - Riesgo de glucemia inestable relacionado con alteración del metabolismo glucídico");
+                }
+                
+                if (datos.tipoLesion === 'agudo') {
+                    if (datos.tipoTraumatismoAgudo === 'quemadura') {
+                        diagnosticos.push("00048 - Riesgo de infección relacionado con solución de continuidad de la piel");
+                        diagnosticos.push("00047 - Deterioro de la integridad cutánea relacionado con agentes térmicos/químicos");
+                        diagnosticos.push("00206 - Riesgo de desequilibrio de líquidos y electrolitos relacionado con pérdida de líquidos por quemaduras");
+                    } else if (datos.tipoTraumatismoAgudo === 'abierto') {
+                        diagnosticos.push("00048 - Riesgo de infección relacionado con solución de continuidad de la piel");
+                        diagnosticos.push("00047 - Deterioro de la integridad cutánea relacionado con factores mecánicos");
+                        
+                        if (datos.tiposTraumaAbierto.includes('punzante') || datos.tiposTraumaAbierto.includes('transfixiante')) {
+                            diagnosticos.push("00207 - Riesgo de lesión de órganos/estructuras relacionado con trauma penetrante");
+                        }
+                    }
+                }
+                
+                if (datos.saludMental) {
+                    if (datos.saludMental === 'conducta-suicida') {
+                        diagnosticos.push("00150 - Riesgo de suicidio relacionado con desesperanza y desesperación");
+                    } else if (datos.saludMental === 'conducta-violenta') {
+                        diagnosticos.push("00138 - Riesgo de violencia relacionado con alteración del control de impulsos");
+                    } else if (datos.saludMental === 'psicosis-aguda') {
+                        diagnosticos.push("00128 - Deterioro del pensamiento relacionado con alteración de la percepción");
+                    } else if (datos.saludMental === 'crisis-angustia') {
+                        diagnosticos.push("00146 - Ansiedad relacionada con amenaza percibida a la integridad");
+                    } else if (datos.saludMental === 'abuso-sustancias') {
+                        diagnosticos.push("00188 - Riesgo de intoxicación relacionado con abuso de sustancias");
+                    } else if (datos.saludMental === 'malestar-emocional') {
+                        diagnosticos.push("00124 - Afrontamiento ineficaz relacionado con alteración del estado de ánimo");
+                    }
+                }
+                
+                if (datos.reaccionAlergica) {
+                    if (datos.reaccionAlergica === 'anafilaxia') {
+                        diagnosticos.push("00004 - Riesgo de reacción alérgica relacionado con exposición a alérgenos");
+                        diagnosticos.push("00029 - Deterioro del gasto cardíaco relacionado con vasodilatación periférica");
+                    } else if (datos.reaccionAlergica === 'alergia-respiratoria') {
+                        diagnosticos.push("00031 - Patrón respiratorio ineficaz relacionado con broncoespasmo");
+                    } else if (datos.reaccionAlergica === 'alergia-cutanea') {
+                        diagnosticos.push("00047 - Deterioro de la integridad cutánea relacionado con reacción alérgica");
+                    } else if (datos.reaccionAlergica === 'alergia-alimentaria') {
+                        diagnosticos.push("00196 - Riesgo de reacción alérgica relacionado con sensibilidad alimentaria");
+                    }
+                }
+                
+                if (datos.tipoViolencia) {
+                    diagnosticos.push("00139 - Riesgo de trauma relacionado con exposición a violencia");
+                    diagnosticos.push("00137 - Afrontamiento familiar comprometido relacionado con dinámica familiar disfuncional");
+                    
+                    if (datos.tipoViolencia === 'domestica') {
+                        diagnosticos.push("00126 - Baja autoestima situacional relacionado con abuso doméstico");
+                    } else if (datos.tipoViolencia === 'genero') {
+                        diagnosticos.push("00125 - Duelo complicado relacionado con violencia de género");
+                    } else if (datos.tipoViolencia === 'infantil') {
+                        diagnosticos.push("00243 - Riesgo de desarrollo infantil alterado relacionado con maltrato infantil");
+                        diagnosticos.push("00155 - Riesgo de síndrome postraumático relacionado con abuso en la infancia");
+                    }
+                }
+                
+                if (diagnosticos.length === 0) {
+                    diagnosticos.push("00199 - Disposición para mejorar el afrontamiento relacionado con recursos de adaptación adecuados");
+                    diagnosticos.push("00200 - Disposición para mejorar el conocimiento sobre la salud");
+                }
+                
+                return diagnosticos;
+            }
+            
+            function generarRecomendacionesEnfermeria(resultadoTriage) {
+                let recomendaciones = [];
+                
+                switch(resultadoTriage.nivel) {
+                    case 1:
+                        recomendaciones.push("🔴 PRIORIDAD ABSOLUTA - Estabilización inmediata");
+                        recomendaciones.push("• Activar protocolo de reanimación inmediatamente");
+                        recomendaciones.push("• Preparar carro de paro y equipo de vía aérea avanzada");
+                        recomendaciones.push("• Monitorización continua: ECG, SpO2, PA invasiva si es necesario");
+                        recomendaciones.push("• Accesos venosos periféricos de grueso calibre (14-16G)");
+                        recomendaciones.push("• Oxigenoterapia de alto flujo con reservorio");
+                        recomendaciones.push("• Valoración ABCDE cada 5 minutos hasta estabilización");
+                        recomendaciones.push("• Notificación inmediata al médico intensivista");
+                        recomendaciones.push("• Preparación para intubación orotraqueal si es necesario");
+                        break;
+                        
+                    case 2:
+                        recomendaciones.push("🟠 ALTA PRIORIDAD - Valoración urgente");
+                        recomendaciones.push("• Ubicar en zona de observación crítica");
+                        recomendaciones.push("• Monitorización continua de signos vitales");
+                        recomendaciones.push("• Valoración ABCDE cada 10-15 minutos");
+                        recomendaciones.push("• Acceso venoso periférico seguro (18G)");
+                        recomendaciones.push("• Oxigenoterapia según saturación y patología");
+                        recomendaciones.push("• Control de dolor según escala evaluada");
+                        recomendaciones.push("• Electrocardiograma inmediato si dolor torácico");
+                        recomendaciones.push("• Preparación para posibles procedimientos urgentes");
+                        recomendaciones.push("• Notificación al médico en menos de 10 minutos");
+                        break;
+                        
+                    case 3:
+                        recomendaciones.push("🟡 PRIORIDAD MEDIA - Valoración prioritaria");
+                        recomendaciones.push("• Ubicar en zona de observación intermedia");
+                        recomendaciones.push("• Control de signos vitales cada 30 minutos");
+                        recomendaciones.push("• Valoración ABCDE cada 30-60 minutos");
+                        recomendaciones.push("• Acceso venoso periférico si es necesario");
+                        recomendaciones.push("• Manejo sintomático según presentación clínica");
+                        recomendaciones.push("• Educación sobre evolución esperada");
+                        recomendaciones.push("• Preparación de estudios complementarios");
+                        recomendaciones.push("• Reevaluación continua del estado clínico");
+                        recomendaciones.push("• Notificación al médico en menos de 60 minutos");
+                        break;
+                        
+                    case 4:
+                        recomendaciones.push("🟢 PRIORIDAD BAJA - Valoración programada");
+                        recomendaciones.push("• Ubicar en zona de espera monitorizada");
+                        recomendaciones.push("• Control de signos vitales al ingreso y cada 2 horas");
+                        recomendaciones.push("• Valoración ABCDE inicial y ante cambios");
+                        recomendaciones.push("• Educación sobre signos de alarma a observar");
+                        recomendaciones.push("• Medidas de confort y manejo sintomático");
+                        recomendaciones.push("• Información sobre tiempos de espera estimados");
+                        recomendaciones.push("• Derivación a consultorios externos si corresponde");
+                        recomendaciones.push("• Reevaluación cada 2 horas o ante empeoramiento");
+                        recomendaciones.push("• Notificación al médico en menos de 120 minutos");
+                        break;
+                        
+                    case 5:
+                        recomendaciones.push("🔵 SIN URGENCIA - Atención ambulatoria");
+                        recomendaciones.push("• Control de signos vitales al ingreso");
+                        recomendaciones.push("• Educación para el autocuidado y seguimiento");
+                        recomendaciones.push("• Derivación a consultorio externo programado");
+                        recomendaciones.push("• Entrega de turno para control especializado");
+                        recomendaciones.push("• Información sobre recursos comunitarios");
+                        recomendaciones.push("• Recomendaciones de prevención y promoción");
+                        recomendaciones.push("• Coordinación con atención primaria si es necesario");
+                        recomendaciones.push("• Alta con instrucciones escritas claras");
+                        recomendaciones.push("• Seguimiento telefónico programado si corresponde");
+                        break;
+                }
+                
+                return recomendaciones;
+            }
+            
+            function generarResumenCompleto(datos, resultadoTriage) {
+                let resumen = `COMPLEJO SANITARIO FAVALORO MOLAS - TRIAGE
+===========================================
+
+DATOS DEL PACIENTE:
+-------------------
+Nombre: ${datos.nombre || 'No registrado'}
+Edad: ${datos.edad || 'No registrada'}
+Género: ${datos.genero || 'No registrado'}
+
+TIEMPO DE TRIAGE:
+-----------------
+${formatearTiempoResumen(tiempoTranscurrido)}
+
+ANTECEDENTES:
+-------------
+${datos.antecedentes.length > 0 ? datos.antecedentes.join(', ') : 'Ninguno registrado'}
+${datos.otrosAntecedentes ? 'Otros antecedentes: ' + datos.otrosAntecedentes : ''}
+
+MOTIVO PRINCIPAL DE CONSULTA:
+-----------------------------
+${datos.motivo || 'No registrado'}
+
+SÍNTOMAS ASOCIADOS:
+-------------------
+${datos.sintomas || 'No registrados'}
+
+SIGNOS VITALES:
+------------------------------
+${datos.frecuenciaCardiaca ? `FC: ${datos.frecuenciaCardiaca} lpm ${esValorAnormal({id: 'frecuencia-cardiaca'}, datos.frecuenciaCardiaca) ? '⚠️' : ''}` : ''}
+${datos.presionArterial && datos.edad > 10 ? `PA: ${datos.presionArterial} mmHg ${esValorAnormal({id: 'presion-arterial'}, datos.presionArterial) ? '⚠️' : ''}` : ''}
+${datos.pam !== null && datos.edad > 10 ? `PAM: ${datos.pam} mmHg ${esPAMNormal(datos.pam) ? '' : '⚠️'}` : ''}
+${datos.frecuenciaRespiratoria ? `FR: ${datos.frecuenciaRespiratoria} rpm ${esValorAnormal({id: 'frecuencia-respiratoria'}, datos.frecuenciaRespiratoria) ? '⚠️' : ''}` : ''}
+${datos.temperatura ? `Temp: ${datos.temperatura} °C ${esValorAnormal({id: 'temperatura'}, datos.temperatura) ? '⚠️' : ''}` : ''}
+${datos.saturacionOxigeno ? `SatO2: ${datos.saturacionOxigeno} % ${esValorAnormal({id: 'saturacion-oxigeno'}, datos.saturacionOxigeno) ? '⚠️' : ''}` : ''}
+${datos.glucemia ? `Glucemia: ${datos.glucemia} mg/dL ${esValorAnormal({id: 'glucemia'}, datos.glucemia) ? '⚠️' : ''}` : ''}
+
+${datos.edad < 14 && datos.edad >= 0 ? `
+TRIÁNGULO DE EVALUACIÓN PEDIÁTRICA:
+-----------------------------------
+Apariencia: ${datos.apariencia || 'No evaluado'}
+Trabajo respiratorio: ${datos.trabajoRespiratorio || 'No evaluado'}
+Circulación a la piel: ${datos.circulacionPiel || 'No evaluado'}
+Diagnóstico: ${datos.diagnosticoTriangulo || 'No evaluado'}
+` : ''}
+
+EVALUACIÓN ABCDE:
+--------------------------------
+${datos.viaAerea ? `Vía aérea: ${datos.viaAerea} ${esValorAnormal({id: 'via-aerea'}, datos.viaAerea) ? '⚠️' : ''}` : ''}
+${datos.sonidosRespiratorios ? `Sonidos respiratorios: ${datos.sonidosRespiratorios} ${esValorAnormal({id: 'sonidos-respiratorios'}, datos.sonidosRespiratorios) ? '⚠️' : ''}` : ''}
+${datos.esfuerzoRespiratorio ? `Esfuerzo respiratorio: ${datos.esfuerzoRespiratorio} ${esValorAnormal({id: 'esfuerzo-respiratorio'}, datos.esfuerzoRespiratorio) ? '⚠️' : ''}` : ''}
+${datos.posicionPaciente ? `Posición del paciente: ${datos.posicionPaciente} ${esValorAnormal({id: 'posicion-paciente'}, datos.posicionPaciente) ? '⚠️' : ''}` : ''}
+${datos.calidadPulso ? `Calidad del pulso: ${datos.calidadPulso} ${esValorAnormal({id: 'calidad-pulso'}, datos.calidadPulso) ? '⚠️' : ''}` : ''}
+${datos.coloracionPiel ? `Coloración de piel: ${datos.coloracionPiel} ${esValorAnormal({id: 'coloracion-piel'}, datos.coloracionPiel) ? '⚠️' : ''}` : ''}
+${datos.tiempoLlenadoCapilar ? `Tiempo llenado capilar: ${datos.tiempoLlenadoCapilar} ${esValorAnormal({id: 'tiempo-llenado-capilar'}, datos.tiempoLlenadoCapilar) ? '⚠️' : ''}` : ''}
+${datos.glasgow ? `Glasgow: ${datos.glasgow} ${esValorAnormal({id: 'glasgow'}, datos.glasgow) ? '⚠️' : ''}` : ''}
+${datos.conciencia ? `Conciencia: ${datos.conciencia} ${esValorAnormal({id: 'conciencia'}, datos.conciencia) ? '⚠️' : ''}` : ''}
+${datos.pupilas ? `Pupilas: ${datos.pupilas} ${esValorAnormal({id: 'pupilas'}, datos.pupilas) ? '⚠️' : ''}` : ''}
+${datos.deficitMeningeo ? `Signos meníngeos: ${datos.deficitMeningeo} ${esValorAnormal({id: 'deficit-meningeo'}, datos.deficitMeningeo) ? '⚠️' : ''}` : ''}
+${datos.deficitMotor ? `Déficit motor: ${datos.deficitMotor} ${esValorAnormal({id: 'deficit-motor'}, datos.deficitMotor) ? '⚠️' : ''}` : ''}
+
+DOLOR:
+------
+${datos.dolor ? `Intensidad: ${datos.dolor}/10 ${esValorAnormal({id: 'dolor'}, datos.dolor) ? '⚠️' : ''}` : ''}
+${datos.localizacionDolor ? `Localización: ${datos.localizacionDolor}` : ''}
+${datos.tipoDolorToracico ? `Tipo dolor torácico: ${datos.tipoDolorToracico === 'tipico' ? 'Dolor Torácico Típico' : datos.tipoDolorToracico === 'atipico' ? 'Dolor Torácico Atípico' : 'No Especificado'}` : ''}
+${datos.caracteristicaDolor ? `Característica: ${datos.caracteristicaDolor}` : ''}
+
+SALUD MENTAL:
+-------------
+${datos.saludMental ? `Condición: ${datos.saludMental} ${esValorAnormal({id: 'salud-mental'}, datos.saludMental) ? '⚠️' : ''}` : ''}
+
+REACCIÓN ALÉRGICA:
+------------------
+${datos.reaccionAlergica ? `Tipo: ${datos.reaccionAlergica} ${esValorAnormal({id: 'reaccion-alergica'}, datos.reaccionAlergica) ? '⚠️' : ''}` : ''}
+
+VIOLENCIA:
+----------
+${datos.tipoViolencia ? `Tipo: ${datos.tipoViolencia} ${esValorAnormal({id: 'tipo-violencia'}, datos.tipoViolencia) ? '⚠️' : ''}` : ''}
+${datos.descripcionViolencia ? `Descripción: ${datos.descripcionViolencia}` : ''}
+
+EXPOSICIÓN:
+---------------------------------
+${datos.agentesLesivos ? `Agentes lesivos: ${datos.agentesLesivos}` : ''}
+${datos.tipoLesion ? `Tipo de lesión: ${datos.tipoLesion}` : ''}
+${datos.tipoTraumatismoAgudo ? `Traumatismo agudo: ${datos.tipoTraumatismoAgudo}` : ''}
+${datos.tipoLesionCronica ? `Lesión crónica: ${datos.tipoLesionCronica}` : ''}
+
+${datos.tipoTraumatismoAgudo === 'quemadura' ? `
+QUEMADURA:
+----------
+${datos.tiposQuemadura.length > 0 ? `Tipo(s): ${datos.tiposQuemadura.join(', ')}` : ''}
+${datos.superficieQuemadura ? `Superficie afectada: ${datos.superficieQuemadura}% ${esValorAnormal({id: 'superficie-quemadura'}, datos.superficieQuemadura) ? '⚠️' : ''}` : ''}
+${datos.gradoQuemadura ? `Grado: ${datos.gradoQuemadura}` : ''}
+` : ''}
+
+${datos.tipoTraumatismoAgudo === 'abierto' ? `
+TRAUMA ABIERTO:
+---------------
+${datos.tiposTraumaAbierto.length > 0 ? `Tipo(s): ${datos.tiposTraumaAbierto.join(', ')}` : ''}
+${(datos.tiposTraumaAbierto.includes('punzante') || datos.tiposTraumaAbierto.includes('transfixiante')) ? `
+CARACTERÍSTICAS PUNZANTE/TRANSFIXIANTE:
+----------------------------------------
+${datos.profundidadHerida ? `Profundidad: ${datos.profundidadHerida} cm ${esValorAnormal({id: 'profundidad-herida'}, datos.profundidadHerida) ? '⚠️' : ''}` : ''}
+${datos.estructurasAfectadas ? `Estructuras afectadas: ${datos.estructurasAfectadas}` : ''}
+${datos.cuerpoExtrano ? `Cuerpo extraño: ${datos.cuerpoExtrano}` : ''}
+` : ''}
+` : ''}
+
+RESOLUCIÓN:
+-----------
+${datos.resolucion || 'No definida'}
+
+RESULTADO TRIAGE:
+-----------------
+Prioridad: ${resultadoTriage.prioridad}
+Tiempo espera: ${resultadoTriage.tiempoEspera}
+
+Fecha: ${new Date().toLocaleString()}
+                `.trim();
+                
+                return resumen;
+            }
+            
+            function copiarResumenCompleto() {
+                const datos = obtenerDatosFormulario();
+                const resultado = calcularTriage(datos);
+                const resumen = generarResumenCompleto(datos, resultado);
+                
+                navigator.clipboard.writeText(resumen).then(() => {
+                    alert('Resumen completo copiado al portapapeles. Puede pegarlo en la historia clínica.');
+                }).catch(err => {
+                    console.error('Error al copiar: ', err);
+                    alert('Error al copiar los datos. Por favor, seleccione y copie manualmente.');
+                });
+            }
+            
+            btnCalcular.addEventListener('click', function() {
+                detenerCronometro();
+                
+                const datos = obtenerDatosFormulario();
+                const resultado = calcularTriage(datos);
+                const diagnosticos = generarDiagnosticosNANDA(datos);
+                const recomendaciones = generarRecomendacionesEnfermeria(resultado);
+                const resumen = generarResumenCompleto(datos, resultado);
+                
+                colorResultado.style.backgroundColor = resultado.color;
+                prioridadResultado.textContent = resultado.prioridad;
+                tiempoResultado.textContent = resultado.tiempoEspera;
+                
+                diagnosticoEnfermeria.innerHTML = "<h4>DIAGNÓSTICOS NANDA 2025 - VISUALIZACIÓN ENFERMERÍA</h4>" + 
+                    diagnosticos.map(dx => `<div class="info-enfermeria">${dx}</div>`).join('');
+                diagnosticoEnfermeria.style.display = 'block';
+                
+                recomendacionesEnfermeria.innerHTML = "<h4>RECOMENDACIONES DE ENFERMERÍA - NO COPIAR EN HC</h4>" + 
+                    recomendaciones.map(rec => `<div>${rec}</div>`).join('');
+                recomendacionesEnfermeria.style.display = 'block';
+                
+                resumenDatos.textContent = resumen;
+                
+                resultadoTriage.style.display = 'block';
+                
+                resultadoTriage.scrollIntoView({ behavior: 'smooth' });
+            });
+            
+            btnCopiar.addEventListener('click', copiarResumenCompleto);
+            
+            btnReiniciar.addEventListener('click', function() {
+                if (intervalo) {
+                    clearInterval(intervalo);
+                    intervalo = null;
+                }
+                inicioTriage = null;
+                tiempoTranscurrido = 0;
+                tiempoTranscurridoElement.textContent = '00:00:00';
+                estadoCronometroElement.textContent = 'En curso...';
+                estadoCronometroElement.style.color = '#0066aa';
+                
+                form.reset();
+                colorTriage.style.backgroundColor = 'var(--gris)';
+                prioridadTriage.textContent = 'No determinado';
+                tiempoTriage.textContent = '-';
+                resultadoTriage.style.display = 'none';
+                subseccionAgudo.style.display = 'none';
+                subseccionCronico.style.display = 'none';
+                subseccionQuemadura.style.display = 'none';
+                subseccionTraumaAbierto.style.display = 'none';
+                subseccionPunzanteTransfixiante.style.display = 'none';
+                infoDolorToracico.style.display = 'none';
+                indicadorPam.style.display = 'none';
+                diagnosticoEnfermeria.style.display = 'none';
+                recomendacionesEnfermeria.style.display = 'none';
+                seccionTriangulo.style.display = 'none';
+                grupoPresionArterial.style.display = 'block';
+                
+                [sinProblemasA, sinProblemasB, sinProblemasC, sinProblemasD, sinProblemasE].forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                inputs.forEach(input => {
+                    input.disabled = false;
+                    input.classList.remove('valor-normal', 'valor-anormal', 'valor-normal-pediatrico');
+                });
+                
+                iniciarCronometro();
+            });
+            
+            iniciarCronometro();
+            actualizarTriageFlotante();
+        });
+    </script>
+</body>
+</html>
